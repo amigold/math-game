@@ -3,76 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Orb Collector</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Game Lobby - Math Learning Games</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/lobby.css">
+    <link rel="stylesheet" href="styles/mathOrb.css">
 </head>
 <body>
-    <div class="game-container">
-        <!-- Countdown Overlay -->
-        <div id="countdown-overlay" class="countdown-overlay hidden">
-            <div id="countdown-text" class="countdown-text"></div>
+    <!-- Lobby View -->
+    <div id="lobby-view" class="lobby-container">
+        <div class="lobby-header">
+            <h1>Game Lobby</h1>
+            <p>Choose a game to play</p>
         </div>
 
-        <!-- Challenge Timer -->
-        <div id="challenge-timer" class="challenge-timer hidden">
-            <div class="timer-label">Time Left:</div>
-            <div id="timer-display" class="timer-display">2:00</div>
-            <div class="problems-counter">
-                Problems: <span id="problems-counter">0</span>/3
-            </div>
-        </div>
-
-        <!-- Game area where orbs appear -->
-        <div class="game-area">
-            <div id="orb-container" class="orb-container">
-                <!-- Orb will be dynamically created here -->
+        <div class="game-cards">
+            <!-- Math Orb Game Card -->
+            <div class="game-card" data-game="mathOrb">
+                <div class="game-card-icon">➕</div>
+                <h2>Math Orb Collector</h2>
+                <p>Practice addition and collect prizes!</p>
+                <button class="play-button">Play</button>
             </div>
 
-            <!-- Input area -->
-            <div class="input-area">
-                <input type="number" id="answer-input" placeholder="?" autocomplete="off" autofocus>
-                <button id="check-button">Check</button>
+            <!-- Hebrew Learning Game Card (Future) -->
+            <div class="game-card game-card-locked" data-game="hebrewLearn">
+                <div class="game-card-icon">א</div>
+                <h2>Hebrew Learning</h2>
+                <p>Coming Soon!</p>
+                <button class="play-button" disabled>Locked</button>
             </div>
-
-            <!-- Feedback message -->
-            <div id="feedback-message" class="feedback-message"></div>
-        </div>
-
-        <!-- Collection sidebar -->
-        <div class="collection-sidebar">
-            <h2>My Collection</h2>
-            <div id="emoji-collection" class="emoji-grid">
-                <!-- Collected emojis will appear here -->
-            </div>
-            <div class="collection-count">
-                Collected: <span id="collection-count">0</span>
-            </div>
-
-            <div class="magic-section">
-                <h2>Magic Faces</h2>
-                <div id="magic-face-collection" class="emoji-grid magic-grid">
-                    <!-- Magic face emojis will appear here -->
-                </div>
-                <div class="collection-count magic-count">
-                    Magic Faces: <span id="magic-count">0</span>
-                </div>
-            </div>
-
-            <div class="picture-section">
-                <h2>Picture Gallery</h2>
-                <div id="picture-collection" class="picture-grid">
-                    <!-- Collected pictures will appear here -->
-                </div>
-                <div class="collection-count picture-count">
-                    Pictures: <span id="picture-count">0</span>
-                </div>
-            </div>
-
-            <button id="reset-button" class="reset-button">Reset Collection</button>
         </div>
     </div>
 
-    <script src="pictures.js"></script>
-    <script src="game.js"></script>
+    <!-- Math Orb Game View -->
+    <div id="math-game-view" class="hidden">
+        <!-- Exit Button -->
+        <button id="exit-button" class="exit-button" title="Exit to Lobby">
+            <span class="exit-icon">←</span>
+            <span class="exit-text">Exit</span>
+        </button>
+
+        <div class="game-container">
+            <!-- Countdown Overlay -->
+            <div id="countdown-overlay" class="countdown-overlay hidden">
+                <div id="countdown-text" class="countdown-text"></div>
+            </div>
+
+            <!-- Challenge Timer -->
+            <div id="challenge-timer" class="challenge-timer hidden">
+                <div class="timer-label">Time Left:</div>
+                <div id="timer-display" class="timer-display">2:00</div>
+                <div class="problems-counter">
+                    Problems: <span id="problems-counter">0</span>/3
+                </div>
+            </div>
+
+            <!-- Game area where orbs appear -->
+            <div class="game-area">
+                <div id="orb-container" class="orb-container">
+                    <!-- Orb will be dynamically created here -->
+                </div>
+
+                <!-- Input area -->
+                <div class="input-area">
+                    <input type="number" id="answer-input" placeholder="?" autocomplete="off" autofocus>
+                    <button id="check-button">Check</button>
+                </div>
+
+                <!-- Feedback message -->
+                <div id="feedback-message" class="feedback-message"></div>
+            </div>
+
+            <!-- Collection sidebar -->
+            <div class="collection-sidebar">
+                <h2>My Collection</h2>
+                <div id="emoji-collection" class="emoji-grid">
+                    <!-- Collected emojis will appear here -->
+                </div>
+                <div class="collection-count">
+                    Collected: <span id="collection-count">0</span>
+                </div>
+
+                <div class="magic-section">
+                    <h2>Magic Faces</h2>
+                    <div id="magic-face-collection" class="emoji-grid magic-grid">
+                        <!-- Magic face emojis will appear here -->
+                    </div>
+                    <div class="collection-count magic-count">
+                        Magic Faces: <span id="magic-count">0</span>
+                    </div>
+                </div>
+
+                <div class="picture-section">
+                    <h2>Picture Gallery</h2>
+                    <div id="picture-collection" class="picture-grid">
+                        <!-- Collected pictures will appear here -->
+                    </div>
+                    <div class="collection-count picture-count">
+                        Pictures: <span id="picture-count">0</span>
+                    </div>
+                </div>
+
+                <button id="reset-button" class="reset-button">Reset Collection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="gameManager.js"></script>
+    <script src="lobby.js"></script>
+
+    <!-- Game Scripts -->
+    <script src="games/mathOrb/pictures.js"></script>
+    <script src="games/mathOrb/mathOrbGame.js"></script>
+
+    <!-- Game Registration -->
+    <script>
+        // Register Math Orb Game with the Game Manager
+        document.addEventListener('DOMContentLoaded', () => {
+            gameManager.registerGame('mathOrb', {
+                viewId: 'math-game-view',
+                title: 'Math Orb Collector',
+                createInstance: () => {
+                    const game = new MathOrbGame();
+                    return game;
+                }
+            });
+
+            console.log('✓ All games registered');
+        });
+    </script>
 </body>
 </html>

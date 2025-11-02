@@ -1,22 +1,26 @@
-// Math Orb Collector - Game Logic
+// Math Orb Collector - Refactored Game Logic with Lifecycle Methods
 
 class MathOrbGame {
     constructor() {
         // Game state
         this.currentProblem = null;
-        this.emojiCollection = this.loadCollection();
-        this.magicFaceCollection = this.loadMagicCollection();
-        this.pictureCollection = this.loadPictureCollection();
-        this.difficulty = 1; // Starts at level 1
+        this.emojiCollection = [];
+        this.magicFaceCollection = [];
+        this.pictureCollection = [];
+        this.difficulty = 1;
         this.problemsSolved = 0;
         this.isMagicBall = false;
         this.isRainbowBall = false;
 
         // Challenge mode state
         this.inChallengeMode = false;
-        this.challengeTimeLeft = 120; // 2 minutes in seconds
+        this.challengeTimeLeft = 120;
         this.challengeProblemsCompleted = 0;
         this.challengeTimer = null;
+
+        // Lifecycle state
+        this.isInitialized = false;
+        this.isPaused = false;
 
         // Available emojis to collect
         this.availableEmojis = [
@@ -46,7 +50,42 @@ class MathOrbGame {
             'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
         ];
 
-        // DOM elements
+        // DOM elements (will be initialized in init())
+        this.orbContainer = null;
+        this.answerInput = null;
+        this.checkButton = null;
+        this.feedbackMessage = null;
+        this.emojiCollectionDiv = null;
+        this.collectionCountSpan = null;
+        this.magicFaceCollectionDiv = null;
+        this.magicCountSpan = null;
+        this.pictureCollectionDiv = null;
+        this.pictureCountSpan = null;
+        this.resetButton = null;
+        this.countdownOverlay = null;
+        this.countdownText = null;
+        this.challengeTimerDiv = null;
+        this.timerDisplay = null;
+        this.problemsCounterSpan = null;
+        this.exitButton = null;
+
+        // Event handlers (stored for cleanup)
+        this.boundCheckAnswer = null;
+        this.boundKeyPress = null;
+        this.boundResetCollection = null;
+        this.boundExitToLobby = null;
+    }
+
+    /**
+     * Initialize the game - sets up DOM references and event listeners
+     */
+    init() {
+        if (this.isInitialized) {
+            console.log('Game already initialized');
+            return;
+        }
+
+        // Get DOM elements
         this.orbContainer = document.getElementById('orb-container');
         this.answerInput = document.getElementById('answer-input');
         this.checkButton = document.getElementById('check-button');
@@ -63,21 +102,110 @@ class MathOrbGame {
         this.challengeTimerDiv = document.getElementById('challenge-timer');
         this.timerDisplay = document.getElementById('timer-display');
         this.problemsCounterSpan = document.getElementById('problems-counter');
+        this.exitButton = document.getElementById('exit-button');
 
-        // Event listeners
-        this.checkButton.addEventListener('click', () => this.checkAnswer());
-        this.answerInput.addEventListener('keypress', (e) => {
+        // Load saved collections
+        this.emojiCollection = this.loadCollection();
+        this.magicFaceCollection = this.loadMagicCollection();
+        this.pictureCollection = this.loadPictureCollection();
+
+        // Create bound event handlers
+        this.boundCheckAnswer = () => this.checkAnswer();
+        this.boundKeyPress = (e) => {
             if (e.key === 'Enter') {
                 this.checkAnswer();
             }
-        });
-        this.resetButton.addEventListener('click', () => this.resetCollection());
+        };
+        this.boundResetCollection = () => this.resetCollection();
+        this.boundExitToLobby = () => {
+            if (typeof gameManager !== 'undefined') {
+                gameManager.exitToLobby();
+            }
+        };
 
-        // Initialize game
+        // Attach event listeners
+        this.checkButton.addEventListener('click', this.boundCheckAnswer);
+        this.answerInput.addEventListener('keypress', this.boundKeyPress);
+        this.resetButton.addEventListener('click', this.boundResetCollection);
+        this.exitButton.addEventListener('click', this.boundExitToLobby);
+
+        // Update displays
         this.updateCollectionDisplay();
         this.updateMagicCollectionDisplay();
         this.updatePictureCollectionDisplay();
-        this.generateNewProblem();
+
+        this.isInitialized = true;
+        console.log('✓ Math Orb Game initialized');
+    }
+
+    /**
+     * Start/resume the game
+     */
+    start() {
+        if (!this.isInitialized) {
+            console.error('Game must be initialized before starting');
+            return;
+        }
+
+        this.isPaused = false;
+
+        // Generate first problem if needed
+        if (!this.currentProblem && !this.inChallengeMode) {
+            this.generateNewProblem();
+        }
+
+        // Focus on input
+        if (this.answerInput && !this.isRainbowBall) {
+            this.answerInput.focus();
+        }
+
+        console.log('✓ Math Orb Game started');
+    }
+
+    /**
+     * Pause the game
+     */
+    pause() {
+        this.isPaused = true;
+
+        // Stop challenge timer if running
+        if (this.challengeTimer) {
+            clearInterval(this.challengeTimer);
+            this.challengeTimer = null;
+        }
+
+        console.log('✓ Math Orb Game paused');
+    }
+
+    /**
+     * Cleanup and destroy the game instance
+     */
+    destroy() {
+        // Remove event listeners
+        if (this.checkButton && this.boundCheckAnswer) {
+            this.checkButton.removeEventListener('click', this.boundCheckAnswer);
+        }
+        if (this.answerInput && this.boundKeyPress) {
+            this.answerInput.removeEventListener('keypress', this.boundKeyPress);
+        }
+        if (this.resetButton && this.boundResetCollection) {
+            this.resetButton.removeEventListener('click', this.boundResetCollection);
+        }
+        if (this.exitButton && this.boundExitToLobby) {
+            this.exitButton.removeEventListener('click', this.boundExitToLobby);
+        }
+
+        // Stop timers
+        if (this.challengeTimer) {
+            clearInterval(this.challengeTimer);
+            this.challengeTimer = null;
+        }
+
+        // Reset state
+        this.isInitialized = false;
+        this.isPaused = false;
+
+        console.log('✓ Math Orb Game destroyed');
     }
 
     // Generate a random math problem
@@ -114,9 +242,8 @@ class MathOrbGame {
 
     // Create and display a new orb with a math problem
     generateNewProblem() {
-        // Don't generate if in challenge mode
-        if (this.inChallengeMode) {
-            this.generateChallengeProb();
+        // Don't generate if in challenge mode or paused
+        if (this.inChallengeMode || this.isPaused) {
             return;
         }
 
@@ -229,6 +356,10 @@ class MathOrbGame {
 
     // Check the user's answer
     checkAnswer() {
+        if (this.isPaused) {
+            return;
+        }
+
         const userAnswer = parseInt(this.answerInput.value);
 
         if (isNaN(userAnswer)) {
@@ -338,7 +469,7 @@ class MathOrbGame {
         this.feedbackMessage.textContent = 'Try again!';
         this.feedbackMessage.className = 'feedback-message incorrect show';
 
-        // Play error sound (placeholder)
+        // Play error sound
         this.playSound('incorrect');
 
         // Shake and fade orb
@@ -648,7 +779,7 @@ class MathOrbGame {
         pictureReveal.className = 'picture-reveal';
 
         const img = document.createElement('img');
-        img.src = `pictures/${picturePath}`;
+        img.src = `games/mathOrb/pictures/${picturePath}`;
         img.alt = 'Unlocked Picture';
         pictureReveal.appendChild(img);
 
@@ -676,7 +807,7 @@ class MathOrbGame {
             pictureItem.className = 'picture-item';
 
             const img = document.createElement('img');
-            img.src = `pictures/${picturePath}`;
+            img.src = `games/mathOrb/pictures/${picturePath}`;
             img.alt = 'Collected Picture';
             pictureItem.appendChild(img);
 
@@ -701,10 +832,7 @@ class MathOrbGame {
         const saved = localStorage.getItem('mathOrbPictureCollection');
         return saved ? JSON.parse(saved) : [];
     }
-
 }
 
-// Initialize game when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    new MathOrbGame();
-});
+// Export for use with GameManager
+// Don't auto-initialize - let GameManager handle it

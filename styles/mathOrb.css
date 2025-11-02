@@ -1,18 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Comic Sans MS', 'Arial', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
+/* Math Orb Game Styles */
 
 .game-container {
     display: flex;
@@ -569,11 +555,6 @@ body {
         transform: translate(-50%, -50%) scale(1) rotate(0);
         opacity: 1;
     }
-}
-
-/* Utility class */
-.hidden {
-    display: none;
 }
 
 /* Responsive Design */
