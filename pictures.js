@@ -2,13 +2,19 @@
 // Add your picture filenames to this array when you add them to the pictures folder
 
 const AVAILABLE_PICTURES = [
-    'IMG_8249_copy.jpg',
-    'IMG_8293.jpg',
-    'IMG_8364.jpg',
-    'IMG_8789.jpg',
-    'IMG_9159.jpg',
-    'IMG_9230.jpg',
-    'IMG_9303.jpg'
+    'Cow_female_black_white.jpg',
+    'download (1).jpeg',
+    'download.jpeg',
+    'images (1).webp',
+    'images (2).webp',
+    'images.jpeg',
+    'images.webp',
+    'leopard-cheetah-black-panther-wild-dangerous-animals_1040130-149.jpg',
+    'Lion_waiting_in_Namibia.jpg',
+    'Lleyn_sheep.jpg',
+    'shopping.webp',
+    'Zwergesel.jpeg',
+    'כמה-עולה-סוס.jpg'
 ];
 
 // Export for use in game.js
