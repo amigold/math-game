@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="styles/common.css">
     <link rel="stylesheet" href="styles/lobby.css">
     <link rel="stylesheet" href="styles/mathOrb.css">
+    <link rel="stylesheet" href="styles/hebrewMatch.css">
 </head>
 <body>
     <!-- Lobby View -->
@@ -27,12 +28,12 @@
                 <button class="play-button">Play</button>
             </div>
 
-            <!-- Hebrew Learning Game Card (Future) -->
-            <div class="game-card game-card-locked" data-game="hebrewLearn">
-                <div class="game-card-icon">א</div>
-                <h2>Hebrew Learning</h2>
-                <p>Coming Soon!</p>
-                <button class="play-button" disabled>Locked</button>
+            <!-- Hebrew Learning Game Card -->
+            <div class="game-card" data-game="hebrewLearn">
+                <div class="game-card-icon">🚗</div>
+                <h2>משחק השפה</h2>
+                <p>התאם כלי תחבורה ואסוף פאזלים!</p>
+                <button class="play-button">שחק</button>
             </div>
         </div>
     </div>
@@ -111,6 +112,93 @@
         </div>
     </div>
 
+    <!-- Hebrew Matching Game View -->
+    <div id="hebrew-game-view" class="hidden">
+        <!-- Exit Button -->
+        <button id="hebrew-exit-button" class="exit-button" title="חזרה ללובי">
+            <span class="exit-icon">←</span>
+            <span class="exit-text">חזרה</span>
+        </button>
+
+        <!-- Level Selection Screen -->
+        <div id="level-selection" class="hebrew-screen">
+            <div class="hebrew-header">
+                <h1>משחק ההתאמה</h1>
+                <p>בחר שלב לשחק</p>
+            </div>
+            <div class="level-grid">
+                <div class="level-card" data-level="1">
+                    <div class="level-number">1</div>
+                    <div class="level-status"></div>
+                </div>
+                <div class="level-card" data-level="2">
+                    <div class="level-number">2</div>
+                    <div class="level-status"></div>
+                </div>
+                <div class="level-card" data-level="3">
+                    <div class="level-number">3</div>
+                    <div class="level-status"></div>
+                </div>
+                <div class="level-card" data-level="4">
+                    <div class="level-number">4</div>
+                    <div class="level-status"></div>
+                </div>
+            </div>
+            <button id="show-collection-btn" class="collection-btn">האוסף שלי</button>
+        </div>
+
+        <!-- Matching Game Screen -->
+        <div id="matching-game" class="hebrew-screen hidden">
+            <button id="show-collection-from-game" class="collection-btn-ingame">האוסף שלי</button>
+            <div class="hebrew-header">
+                <h2 id="matching-title">שלב 1</h2>
+                <p>התאם כל כלי תחבורה לשם שלו</p>
+            </div>
+            <div class="matching-container">
+                <canvas id="line-canvas"></canvas>
+                <div class="emoji-column">
+                    <!-- Emojis will be added here -->
+                </div>
+                <div class="name-column">
+                    <!-- Names will be added here -->
+                </div>
+            </div>
+            <div id="matching-feedback" class="feedback-message"></div>
+        </div>
+
+        <!-- Puzzle Assembly Screen -->
+        <div id="puzzle-game" class="hebrew-screen hidden">
+            <div class="hebrew-header">
+                <h2>הרכב את הפאזל!</h2>
+                <p>גרור את החתיכות למקום הנכון</p>
+            </div>
+            <div class="puzzle-container">
+                <div class="puzzle-board">
+                    <div class="puzzle-slot" data-position="0"></div>
+                    <div class="puzzle-slot" data-position="1"></div>
+                    <div class="puzzle-slot" data-position="2"></div>
+                    <div class="puzzle-slot" data-position="3"></div>
+                </div>
+                <div class="puzzle-pieces">
+                    <!-- Puzzle pieces will be added here -->
+                </div>
+            </div>
+            <div id="puzzle-feedback" class="feedback-message"></div>
+        </div>
+
+        <!-- Collection Screen -->
+        <div id="collection-screen" class="hebrew-screen hidden">
+            <div class="hebrew-header">
+                <h1>האוסף שלי</h1>
+                <p>כל הפאזלים שהשלמתי</p>
+            </div>
+            <div class="collection-grid" id="puzzle-collection">
+                <!-- Completed puzzles will be shown here -->
+            </div>
+            <button id="back-to-levels-btn" class="back-btn">חזרה למשחק</button>
+        </div>
+    </div>
+
     <!-- Core Scripts -->
     <script src="gameManager.js"></script>
     <script src="lobby.js"></script>
@@ -118,6 +206,7 @@
     <!-- Game Scripts -->
     <script src="games/mathOrb/pictures.js"></script>
     <script src="games/mathOrb/mathOrbGame.js"></script>
+    <script src="games/hebrewMatch/hebrewMatchGame.js"></script>
 
     <!-- Game Registration -->
     <script>
@@ -128,6 +217,15 @@
                 title: 'Math Orb Collector',
                 createInstance: () => {
                     const game = new MathOrbGame();
+                    return game;
+                }
+            });
+
+            gameManager.registerGame('hebrewLearn', {
+                viewId: 'hebrew-game-view',
+                title: 'משחק השפה',
+                createInstance: () => {
+                    const game = new HebrewMatchGame();
                     return game;
                 }
             });

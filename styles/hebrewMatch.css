@@ -1,0 +1,341 @@
+/* Hebrew Matching Game Styles */
+
+#hebrew-game-view {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    direction: rtl;
+}
+
+/* Exit Button */
+#hebrew-exit-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #667eea;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+#hebrew-exit-button:hover {
+    background: #f8f8ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* Screen Container */
+.hebrew-screen {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+/* Header */
+.hebrew-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hebrew-header h1 {
+    font-size: 48px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+}
+
+.hebrew-header h2 {
+    font-size: 36px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+}
+
+.hebrew-header p {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Level Selection */
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 200px);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.level-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.level-card:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.level-number {
+    font-size: 72px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.level-status {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 32px;
+}
+
+.level-card.completed .level-status::after {
+    content: '✓';
+    color: #4CAF50;
+}
+
+.collection-btn,
+.back-btn,
+.collection-btn-ingame {
+    background: white;
+    border: none;
+    border-radius: 15px;
+    padding: 15px 40px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.collection-btn-ingame {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 50;
+    font-size: 18px;
+    padding: 10px 25px;
+}
+
+.collection-btn:hover,
+.back-btn:hover,
+.collection-btn-ingame:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Matching Game */
+.matching-container {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    width: 800px;
+    max-width: 90vw;
+    height: 400px;
+    margin-bottom: 30px;
+}
+
+#line-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.emoji-column,
+.name-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    z-index: 2;
+}
+
+.emoji-item,
+.name-item {
+    background: white;
+    border-radius: 15px;
+    padding: 20px 30px;
+    font-size: 36px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    min-width: 120px;
+    text-align: center;
+}
+
+.emoji-item:hover,
+.name-item:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.emoji-item.selected,
+.name-item.selected {
+    background: #FFD700;
+    transform: scale(1.15);
+}
+
+.emoji-item.matched,
+.name-item.matched {
+    background: #4CAF50;
+    color: white;
+    pointer-events: none;
+}
+
+/* Puzzle Game */
+.puzzle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.puzzle-board {
+    display: grid;
+    grid-template-columns: repeat(2, 200px);
+    grid-template-rows: repeat(2, 200px);
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.puzzle-slot {
+    background: rgba(255, 255, 255, 0.5);
+    border: 3px dashed rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.puzzle-slot.filled {
+    border-style: solid;
+    border-color: #4CAF50;
+}
+
+.puzzle-pieces {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.puzzle-piece {
+    width: 200px;
+    height: 200px;
+    cursor: grab;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+    background-size: 400px 400px;
+}
+
+.puzzle-piece:hover {
+    transform: scale(1.1);
+}
+
+.puzzle-piece:active {
+    cursor: grabbing;
+}
+
+.puzzle-piece[data-position="0"] {
+    background-position: 0 0;
+}
+
+.puzzle-piece[data-position="1"] {
+    background-position: -200px 0;
+}
+
+.puzzle-piece[data-position="2"] {
+    background-position: 0 -200px;
+}
+
+.puzzle-piece[data-position="3"] {
+    background-position: -200px -200px;
+}
+
+/* Collection Screen */
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 300px);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.collection-item {
+    background: white;
+    border-radius: 20px;
+    padding: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.collection-item img {
+    width: 100%;
+    border-radius: 15px;
+}
+
+.collection-empty {
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    padding: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+}
+
+/* Feedback Message */
+.feedback-message {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    min-height: 40px;
+    margin-top: 20px;
+}
+
+.feedback-message.correct {
+    color: #4CAF50;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.feedback-message.incorrect {
+    color: #f44336;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Animations */
+@keyframes celebration {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.celebrating {
+    animation: celebration 0.6s ease-in-out;
+}
