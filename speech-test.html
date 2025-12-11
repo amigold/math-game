@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בְּדִיקַת זִיהוּי קוֹלִי - Web Speech API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .status-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 3px solid #e9ecef;
+            text-align: center;
+        }
+
+        .status-box.recording {
+            background: #fff3cd;
+            border-color: #ffc107;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .status-text {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .status-box.recording .status-text {
+            color: #856404;
+        }
+
+        .mic-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 3em;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .mic-button:active {
+            transform: scale(0.95);
+        }
+
+        .mic-button.recording {
+            background: linear-gradient(135deg, #ffc107 0%, #ff6b6b 100%);
+            animation: recordPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes recordPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .result-box {
+            background: #e7f5ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 100px;
+            border: 2px solid #4dabf7;
+        }
+
+        .result-label {
+            font-weight: bold;
+            color: #1971c2;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .result-text {
+            font-size: 2em;
+            color: #1864ab;
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        .confidence {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #495057;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .test-words {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .test-words h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .word-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .word-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .word-item {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .word-item:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .history {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .history h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-right: 5px solid #667eea;
+        }
+
+        .history-item.success {
+            border-right-color: #51cf66;
+        }
+
+        .history-item.partial {
+            border-right-color: #ffc107;
+        }
+
+        .history-item.fail {
+            border-right-color: #ff6b6b;
+        }
+
+        .history-recognized {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .history-confidence {
+            font-size: 0.9em;
+            color: #868e96;
+        }
+
+        .history-time {
+            font-size: 0.8em;
+            color: #adb5bd;
+            margin-top: 5px;
+        }
+
+        .clear-button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .clear-button:hover {
+            background: #fa5252;
+            transform: translateY(-2px);
+        }
+
+        .browser-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .browser-warning.show {
+            display: block;
+        }
+
+        .browser-warning h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .browser-warning p {
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 בְּדִיקַת זִיהוּי קוֹלִי</h1>
+        <p class="subtitle">בִּדְקוּ אֵיךְ Web Speech API מְזַהֶה עִבְרִית</p>
+
+        <div class="browser-warning" id="browserWarning">
+            <h3>⚠️ אַזְהָרָה</h3>
+            <p>הַדַּפְדְּפָן שֶׁלְּךָ אֵינוֹ תּוֹמֵךְ בְּ-Web Speech API. אָנָּא הִשְׁתַּמֵּשׁ בְּכְרוֹם (Chrome), אֶדְג' (Edge) אוֹ סַפָּארִי (Safari).</p>
+        </div>
+
+        <div class="status-box" id="statusBox">
+            <div class="status-text" id="statusText">לְחַץ עַל הַמִּיקְרוֹפוֹן וְאֱמוֹר מִלָּה</div>
+            <button class="mic-button" id="micButton">🎤</button>
+        </div>
+
+        <div class="result-box">
+            <div class="result-label">מַה הַמַּחְשֵׁב זִיהָה:</div>
+            <div class="result-text" id="resultText">---</div>
+            <div class="confidence" id="confidenceText"></div>
+        </div>
+
+        <div class="two-columns">
+            <div class="test-words">
+                <h3>📝 מִלִּים לִבְדִיקָה</h3>
+
+                <div class="word-category">
+                    <div class="category-title">מִלִּים קְצָרוֹת פְּשׁוּטוֹת:</div>
+                    <div class="word-list">
+                        <div class="word-item">בָּא</div>
+                        <div class="word-item">מָה</div>
+                        <div class="word-item">לֹא</div>
+                        <div class="word-item">דָּג</div>
+                        <div class="word-item">שָׁם</div>
+                        <div class="word-item">יָד</div>
+                    </div>
+                </div>
+
+                <div class="word-category">
+                    <div class="category-title">מִלִּים בֵּינוֹנִיּוֹת:</div>
+                    <div class="word-list">
+                        <div class="word-item">כֶּלֶב</div>
+                        <div class="word-item">חָתוּל</div>
+                        <div class="word-item">בַּיִת</div>
+                        <div class="word-item">יֶלֶד</div>
+                        <div class="word-item">סוּס</div>
+                        <div class="word-item">אִמָּא</div>
+                    </div>
+                </div>
+
+                <div class="word-category">
+                    <div class="category-title">הַבְרוֹת בּוֹדְדוֹת:</div>
+                    <div class="word-list">
+                        <div class="word-item">בָּ</div>
+                        <div class="word-item">מִי</div>
+                        <div class="word-item">לוֹ</div>
+                        <div class="word-item">דַּ</div>
+                        <div class="word-item">שָׁ</div>
+                        <div class="word-item">תּוֹ</div>
+                    </div>
+                </div>
+
+                <div class="word-category">
+                    <div class="category-title">צְלִילִים דּוֹמִים:</div>
+                    <div class="word-list">
+                        <div class="word-item">בַּיִת</div>
+                        <div class="word-item">בַיִת</div>
+                        <div class="word-item">כַּף</div>
+                        <div class="word-item">כַף</div>
+                        <div class="word-item">פַּר</div>
+                        <div class="word-item">פַר</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history">
+                <h3>📊 הִיסְטוֹרְיָה</h3>
+                <button class="clear-button" id="clearButton">נַקֶּה הִיסְטוֹרְיָה</button>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check browser support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            document.getElementById('browserWarning').classList.add('show');
+            document.getElementById('micButton').disabled = true;
+        }
+
+        // Initialize Speech Recognition
+        let recognition = null;
+        let isRecording = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'he-IL'; // Hebrew
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 3;
+
+            // Event handlers
+            recognition.onstart = function() {
+                isRecording = true;
+                document.getElementById('statusBox').classList.add('recording');
+                document.getElementById('micButton').classList.add('recording');
+                document.getElementById('statusText').textContent = '🎙️ מַאֲזִין... דַּבֵּר עַכְשָׁיו!';
+                document.getElementById('resultText').textContent = '...';
+                document.getElementById('confidenceText').textContent = '';
+            };
+
+            recognition.onresult = function(event) {
+                const results = event.results[0];
+                const transcript = results[0].transcript;
+                const confidence = (results[0].confidence * 100).toFixed(1);
+
+                // Display result
+                document.getElementById('resultText').textContent = transcript;
+                document.getElementById('confidenceText').textContent =
+                    `רָמַת בִּטָּחוֹן: ${confidence}%`;
+
+                // Add to history
+                addToHistory(transcript, confidence);
+
+                // Update status
+                document.getElementById('statusText').textContent =
+                    'זִיהוּי הוּשְׁלַם! לְחַץ שׁוּב לִבְדִיקָה נוֹסֶפֶת';
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                document.getElementById('statusText').textContent =
+                    `❌ שְׁגִיאָה: ${event.error}`;
+                document.getElementById('resultText').textContent =
+                    'לֹא הִצְלַחְתִּי לְזַהוֹת. נַסֶּה שׁוּב.';
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                document.getElementById('statusBox').classList.remove('recording');
+                document.getElementById('micButton').classList.remove('recording');
+            };
+        }
+
+        // Mic button handler
+        document.getElementById('micButton').addEventListener('click', function() {
+            if (!recognition) return;
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.error('Error starting recognition:', e);
+                }
+            }
+        });
+
+        // History management
+        let historyItems = [];
+
+        function addToHistory(text, confidence) {
+            const item = {
+                text: text,
+                confidence: parseFloat(confidence),
+                timestamp: new Date().toLocaleTimeString('he-IL')
+            };
+
+            historyItems.unshift(item);
+            if (historyItems.length > 20) historyItems.pop();
+
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            historyItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+
+                // Color code by confidence
+                if (item.confidence >= 80) {
+                    div.classList.add('success');
+                } else if (item.confidence >= 50) {
+                    div.classList.add('partial');
+                } else {
+                    div.classList.add('fail');
+                }
+
+                div.innerHTML = `
+                    <div class="history-recognized">${item.text}</div>
+                    <div class="history-confidence">בִּטָּחוֹן: ${item.confidence.toFixed(1)}%</div>
+                    <div class="history-time">${item.timestamp}</div>
+                `;
+
+                historyList.appendChild(div);
+            });
+        }
+
+        // Clear history button
+        document.getElementById('clearButton').addEventListener('click', function() {
+            historyItems = [];
+            updateHistoryDisplay();
+            document.getElementById('resultText').textContent = '---';
+            document.getElementById('confidenceText').textContent = '';
+        });
+
+        // Word item click - copy to clipboard and show suggestion
+        document.querySelectorAll('.word-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const word = this.textContent;
+                document.getElementById('statusText').textContent =
+                    `נַסֶּה לוֹמַר: "${word}"`;
+
+                // Visual feedback
+                this.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="styles/lobby.css">
     <link rel="stylesheet" href="styles/mathOrb.css">
     <link rel="stylesheet" href="styles/hebrewMatch.css">
+    <link rel="stylesheet" href="styles/speechGame.css">
 </head>
 <body>
     <!-- Lobby View -->
@@ -31,9 +32,17 @@
             <!-- Hebrew Learning Game Card -->
             <div class="game-card" data-game="hebrewLearn">
                 <div class="game-card-icon">🚗</div>
-                <h2>משחק השפה</h2>
-                <p>התאם כלי תחבורה ואסוף פאזלים!</p>
-                <button class="play-button">שחק</button>
+                <h2>מִשְׂחַק הַשָּׂפָה</h2>
+                <p>הַתְאֵם כְּלֵי תַּחְבּוּרָה וֶאֱסוֹף פַּאזָלִים!</p>
+                <button class="play-button">שַׂחֵק</button>
+            </div>
+
+            <!-- Speech Recognition Game Card -->
+            <div class="game-card" data-game="speechGame">
+                <div class="game-card-icon">🎤</div>
+                <h2>מִשְׂחַק הַקּוֹל</h2>
+                <p>אֱמוֹר הַבְרוֹת וּמִלִּים וֶאֱסוֹף פְּרָסִים!</p>
+                <button class="play-button">שַׂחֵק</button>
             </div>
         </div>
     </div>
@@ -115,16 +124,16 @@
     <!-- Hebrew Matching Game View -->
     <div id="hebrew-game-view" class="hidden">
         <!-- Exit Button -->
-        <button id="hebrew-exit-button" class="exit-button" title="חזרה ללובי">
+        <button id="hebrew-exit-button" class="exit-button" title="חֲזָרָה לְלוֹבִּי">
             <span class="exit-icon">←</span>
-            <span class="exit-text">חזרה</span>
+            <span class="exit-text">חֲזָרָה</span>
         </button>
 
         <!-- Level Selection Screen -->
         <div id="level-selection" class="hebrew-screen">
             <div class="hebrew-header">
-                <h1>משחק ההתאמה</h1>
-                <p>בחר שלב לשחק</p>
+                <h1>מִשְׂחַק הַהַתְאָמָה</h1>
+                <p>בְּחַר שָׁלָב לְשַׂחֵק</p>
             </div>
             <div class="level-grid">
                 <div class="level-card" data-level="1">
@@ -144,15 +153,15 @@
                     <div class="level-status"></div>
                 </div>
             </div>
-            <button id="show-collection-btn" class="collection-btn">האוסף שלי</button>
+            <button id="show-collection-btn" class="collection-btn">הָאוֹסֵף שֶׁלִּי</button>
         </div>
 
         <!-- Matching Game Screen -->
         <div id="matching-game" class="hebrew-screen hidden">
-            <button id="show-collection-from-game" class="collection-btn-ingame">האוסף שלי</button>
+            <button id="show-collection-from-game" class="collection-btn-ingame">הָאוֹסֵף שֶׁלִּי</button>
             <div class="hebrew-header">
-                <h2 id="matching-title">שלב 1</h2>
-                <p>התאם כל כלי תחבורה לשם שלו</p>
+                <h2 id="matching-title">שָׁלָב 1</h2>
+                <p>הַתְאֵם כָּל כְּלִי תַּחְבּוּרָה לִשְׁמוֹ</p>
             </div>
             <div class="matching-container">
                 <canvas id="line-canvas"></canvas>
@@ -169,8 +178,8 @@
         <!-- Puzzle Assembly Screen -->
         <div id="puzzle-game" class="hebrew-screen hidden">
             <div class="hebrew-header">
-                <h2>הרכב את הפאזל!</h2>
-                <p>גרור את החתיכות למקום הנכון</p>
+                <h2>הַרְכֵּב אֶת הַפַּאזָל!</h2>
+                <p>גְּרוֹר אֶת הַחֲתִיכוֹת לַמָּקוֹם הַנָּכוֹן</p>
             </div>
             <div class="puzzle-container">
                 <div class="puzzle-board">
@@ -189,13 +198,111 @@
         <!-- Collection Screen -->
         <div id="collection-screen" class="hebrew-screen hidden">
             <div class="hebrew-header">
-                <h1>האוסף שלי</h1>
-                <p>כל הפאזלים שהשלמתי</p>
+                <h1>הָאוֹסֵף שֶׁלִּי</h1>
+                <p>כָּל הַפַּאזָלִים שֶׁהִשְׁלַמְתִּי</p>
             </div>
             <div class="collection-grid" id="puzzle-collection">
                 <!-- Completed puzzles will be shown here -->
             </div>
-            <button id="back-to-levels-btn" class="back-btn">חזרה למשחק</button>
+            <button id="back-to-levels-btn" class="back-btn">חֲזָרָה לְמִשְׂחָק</button>
+        </div>
+    </div>
+
+    <!-- Speech Recognition Game View -->
+    <div id="speech-game-view" class="hidden">
+        <!-- Exit Button -->
+        <button id="speech-exit-button" class="exit-button" title="חֲזָרָה לְלוֹבִּי">
+            <span class="exit-icon">←</span>
+            <span class="exit-text">חֲזָרָה</span>
+        </button>
+
+        <!-- Level Selection Screen -->
+        <div id="speech-level-selection" class="speech-screen">
+            <div class="speech-header">
+                <h1>🎤 מִשְׂחַק הַקּוֹל</h1>
+                <p>בְּחַר רָמַת קוֹשִׁי</p>
+            </div>
+            <div class="level-grid">
+                <div class="speech-level-card" data-level="1">
+                    <div class="level-icon">🅰️</div>
+                    <div class="level-title">רָמָה 1</div>
+                    <div class="level-description">הַבְרוֹת פְּשׁוּטוֹת</div>
+                </div>
+                <div class="speech-level-card" data-level="2">
+                    <div class="level-icon">🅱️</div>
+                    <div class="level-title">רָמָה 2</div>
+                    <div class="level-description">הַבְרוֹת מוּרְכָּבוֹת</div>
+                </div>
+                <div class="speech-level-card" data-level="3">
+                    <div class="level-icon">📝</div>
+                    <div class="level-title">רָמָה 3</div>
+                    <div class="level-description">מִלִּים קְצָרוֹת</div>
+                </div>
+                <div class="speech-level-card" data-level="4">
+                    <div class="level-icon">📚</div>
+                    <div class="level-title">רָמָה 4</div>
+                    <div class="level-description">מִלִּים אֲרֻכּוֹת</div>
+                </div>
+            </div>
+            <button id="speech-show-collection-btn" class="collection-btn">הָאוֹסֵף שֶׁלִּי</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="speech-game-screen" class="speech-screen hidden">
+            <div class="speech-game-container">
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div id="speech-progress-bar" class="progress-bar"></div>
+                    </div>
+                    <div id="speech-progress-text" class="progress-text">עוֹד 5 נְכוֹנִים לְפֶרֶס!</div>
+                </div>
+
+                <!-- Challenge Display -->
+                <div class="challenge-container">
+                    <div id="challenge-text" class="challenge-text">בָּ</div>
+                    <div id="challenge-description" class="challenge-description">בּ + קָמַץ = בָּ</div>
+                    <div class="examples-container">
+                        <p class="examples-label">דּוּגְמָאוֹת:</p>
+                        <ul id="examples-list" class="examples-list">
+                            <li>בָּא</li>
+                            <li>בָּנָה</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Mic Button -->
+                <button id="speech-mic-button" class="speech-mic-button">🎤</button>
+
+                <!-- Status & Result -->
+                <div id="speech-status-text" class="status-message">לְחַץ עַל הַמִּיקְרוֹפוֹן וְאֱמוֹר אֶת הַמִּלָּה</div>
+                <div id="speech-result-text" class="result-text"></div>
+
+                <!-- Skip Button -->
+                <button id="skip-button" class="skip-button">דַּלֵּג ⏭️</button>
+            </div>
+        </div>
+
+        <!-- Prize Screen -->
+        <div id="speech-prize-screen" class="speech-screen hidden">
+            <div class="prize-container">
+                <h1 class="prize-title">כָּל הַכָּבוֹד! 🎉</h1>
+                <div id="prize-emoji" class="prize-emoji">🌟</div>
+                <div id="prize-name" class="prize-text">זָכִיתָ בְּכוֹכָב!</div>
+                <button id="continue-button" class="continue-button">הַמְשֵׁךְ לְשַׂחֵק</button>
+            </div>
+        </div>
+
+        <!-- Collection Screen -->
+        <div id="speech-collection-screen" class="speech-screen hidden">
+            <div class="speech-header">
+                <h1>הָאוֹסֵף שֶׁלִּי</h1>
+                <p>כָּל הַפְּרָסִים שֶׁזָּכִיתִי</p>
+            </div>
+            <div class="collection-grid" id="speech-prize-collection">
+                <!-- Collected prizes will be shown here -->
+            </div>
+            <button id="speech-back-to-levels-btn" class="back-btn">חֲזָרָה לִרְמוֹת</button>
         </div>
     </div>
 
@@ -207,6 +314,8 @@
     <script src="games/mathOrb/pictures.js"></script>
     <script src="games/mathOrb/mathOrbGame.js"></script>
     <script src="games/hebrewMatch/hebrewMatchGame.js"></script>
+    <script src="games/speechGame/speechData.js"></script>
+    <script src="games/speechGame/speechGame.js"></script>
 
     <!-- Game Registration -->
     <script>
@@ -223,9 +332,18 @@
 
             gameManager.registerGame('hebrewLearn', {
                 viewId: 'hebrew-game-view',
-                title: 'משחק השפה',
+                title: 'מִשְׂחַק הַשָּׂפָה',
                 createInstance: () => {
                     const game = new HebrewMatchGame();
+                    return game;
+                }
+            });
+
+            gameManager.registerGame('speechGame', {
+                viewId: 'speech-game-view',
+                title: 'מִשְׂחַק הַקּוֹל',
+                createInstance: () => {
+                    const game = new SpeechGame();
                     return game;
                 }
             });

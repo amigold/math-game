@@ -1,0 +1,406 @@
+/* Speech Game Styles */
+
+#speech-game-view {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    direction: rtl;
+    position: relative;
+}
+
+/* Header Styles */
+.speech-header {
+    text-align: center;
+    padding: 40px 20px;
+    color: white;
+}
+
+.speech-header h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.speech-header p {
+    font-size: 1.5em;
+    opacity: 0.9;
+}
+
+/* Level Selection */
+.speech-level-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.speech-level-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.speech-level-card .level-icon {
+    font-size: 4em;
+    margin-bottom: 15px;
+}
+
+.speech-level-card .level-title {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.speech-level-card .level-description {
+    font-size: 1.2em;
+    color: #666;
+}
+
+/* Game Container */
+.speech-game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Progress Bar */
+.progress-container {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar-bg {
+    background: #e0e0e0;
+    height: 25px;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    transition: width 0.5s ease;
+    border-radius: 15px;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #667eea;
+}
+
+/* Challenge Display */
+.challenge-container {
+    background: white;
+    border-radius: 25px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.challenge-text {
+    font-size: 8em;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(102, 126, 234, 0.2);
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.challenge-text.shake {
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.challenge-description {
+    font-size: 1.5em;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.examples-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0;
+}
+
+.examples-label {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.examples-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.examples-list li {
+    background: #f0f0f0;
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-size: 1.8em;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.examples-list li:hover {
+    background: #667eea;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Mic Button */
+.speech-mic-button {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 5em;
+    cursor: pointer;
+    display: block;
+    margin: 30px auto;
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+}
+
+.speech-mic-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.6);
+}
+
+.speech-mic-button:active {
+    transform: scale(0.95);
+}
+
+.speech-mic-button.recording {
+    background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+    animation: recordPulse 1s ease-in-out infinite;
+}
+
+@keyframes recordPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Status Messages */
+.status-message {
+    text-align: center;
+    font-size: 1.8em;
+    font-weight: bold;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 15px;
+    background: white;
+    color: #666;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.status-message.listening {
+    background: #fff3cd;
+    color: #856404;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.status-message.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Result Text */
+.result-text {
+    text-align: center;
+    font-size: 1.5em;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+}
+
+.result-text.success {
+    background: rgba(212, 237, 218, 0.5);
+    color: #155724;
+}
+
+.result-text.error {
+    background: rgba(248, 215, 218, 0.5);
+    color: #721c24;
+}
+
+/* Skip Button */
+.skip-button {
+    display: block;
+    margin: 20px auto;
+    padding: 15px 40px;
+    font-size: 1.3em;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.skip-button:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Prize Screen */
+.prize-container {
+    max-width: 600px;
+    margin: 100px auto;
+    background: white;
+    border-radius: 30px;
+    padding: 60px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    animation: prizeAppear 0.5s ease;
+}
+
+@keyframes prizeAppear {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.prize-title {
+    font-size: 3em;
+    color: #667eea;
+    margin-bottom: 30px;
+}
+
+.prize-emoji {
+    width: 250px;
+    height: 250px;
+    margin: 30px auto;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10em;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    animation: prizeFloat 2s ease-in-out infinite;
+}
+
+@keyframes prizeFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.prize-text {
+    font-size: 2em;
+    color: #333;
+    margin: 30px 0;
+}
+
+.continue-button {
+    padding: 20px 50px;
+    font-size: 1.5em;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.continue-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+}
+
+/* Collection */
+.collection-empty {
+    text-align: center;
+    font-size: 1.8em;
+    color: white;
+    padding: 100px 20px;
+    white-space: pre-line;
+}
+
+.collection-item {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.collection-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.prize-display {
+    width: 100%;
+    height: 200px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5em;
+    margin-bottom: 15px;
+}
+
+.prize-name {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #667eea;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .challenge-text {
+        font-size: 6em;
+    }
+
+    .speech-mic-button {
+        width: 120px;
+        height: 120px;
+        font-size: 4em;
+    }
+
+    .prize-emoji {
+        width: 200px;
+        height: 200px;
+        font-size: 8em;
+    }
+}

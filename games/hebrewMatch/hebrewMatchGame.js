@@ -4,42 +4,42 @@ class HebrewMatchGame {
     constructor() {
         // All available vehicles
         this.allVehicles = [
-            { emoji: '🚗', name: 'מכונית' },
-            { emoji: '🚲', name: 'אופניים' },
-            { emoji: '✈️', name: 'מטוס' },
-            { emoji: '🚂', name: 'רכבת' },
-            { emoji: '🚌', name: 'אוטובוס' },
-            { emoji: '🚁', name: 'מסוק' },
-            { emoji: '🚢', name: 'אונייה' },
-            { emoji: '🚕', name: 'מונית' },
-            { emoji: '🏍️', name: 'אופנוע' },
-            { emoji: '🚜', name: 'טרקטור' },
-            { emoji: '🛴', name: 'קורקינט' },
-            { emoji: '🚠', name: 'רכבל' },
-            { emoji: '🚙', name: 'רכב שטח' },
-            { emoji: '🚛', name: 'משאית' },
-            { emoji: '🚝', name: 'רכבת חשמלית' },
-            { emoji: '🚆', name: 'רכבת מהירה' },
-            { emoji: '🚘', name: 'מכונית קטנה' },
-            { emoji: '🚔', name: 'ניידת משטרה' },
-            { emoji: '🚍', name: 'אוטובוס קומותיים' },
-            { emoji: '🚎', name: 'טרוליבוס' }
+            { emoji: '🚗', name: 'מְכוֹנִית' },
+            { emoji: '🚲', name: 'אוֹפַנַּיִם' },
+            { emoji: '✈️', name: 'מָטוֹס' },
+            { emoji: '🚂', name: 'רַכֶּבֶת' },
+            { emoji: '🚌', name: 'אוֹטוֹבּוּס' },
+            { emoji: '🚁', name: 'מָסוֹק' },
+            { emoji: '🚢', name: 'אֳנִיָּה' },
+            { emoji: '🚕', name: 'מוֹנִית' },
+            { emoji: '🏍️', name: 'אוֹפַנּוֹעַ' },
+            { emoji: '🚜', name: 'טְרַקְטוֹר' },
+            { emoji: '🛴', name: 'קוֹרְקִינֶט' },
+            { emoji: '🚠', name: 'רַכְבָּל' },
+            { emoji: '🚙', name: 'רֶכֶב שֶׁטַח' },
+            { emoji: '🚛', name: 'מַשָּׂאִית' },
+            { emoji: '🚝', name: 'רַכֶּבֶת חַשְׁמַלִּית' },
+            { emoji: '🚆', name: 'רַכֶּבֶת מְהִירָה' },
+            { emoji: '🚘', name: 'מְכוֹנִית קְטַנָּה' },
+            { emoji: '🚔', name: 'נַיֶּדֶת מִשְׁטָרָה' },
+            { emoji: '🚍', name: 'אוֹטוֹבּוּס קוֹמוֹתַיִם' },
+            { emoji: '🚎', name: 'טְרוֹלֵיבּוּס' }
         ];
 
         // All available prizes (images to collect)
         this.allPrizes = [
-            { emoji: '🐮', name: 'פרה', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-            { emoji: '🐱', name: 'חתול', color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-            { emoji: '🦋', name: 'פרפר', color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-            { emoji: '🐶', name: 'כלב', color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
-            { emoji: '🐘', name: 'פיל', color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
-            { emoji: '🦁', name: 'אריה', color: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)' },
-            { emoji: '🐼', name: 'פנדה', color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
-            { emoji: '🦊', name: 'שועל', color: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
-            { emoji: '🐯', name: 'נמר', color: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-            { emoji: '🐨', name: 'קואלה', color: 'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)' },
-            { emoji: '🐸', name: 'צפרדע', color: 'linear-gradient(135deg, #52c234 0%, #061700 100%)' },
-            { emoji: '🐵', name: 'קוף', color: 'linear-gradient(135deg, #f77062 0%, #fe5196 100%)' }
+            { emoji: '🐮', name: 'פָּרָה', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+            { emoji: '🐱', name: 'חָתוּל', color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+            { emoji: '🦋', name: 'פַּרְפַּר', color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+            { emoji: '🐶', name: 'כֶּלֶב', color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
+            { emoji: '🐘', name: 'פִּיל', color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
+            { emoji: '🦁', name: 'אַרְיֵה', color: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)' },
+            { emoji: '🐼', name: 'פַּנְדָּה', color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
+            { emoji: '🦊', name: 'שׁוּעָל', color: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
+            { emoji: '🐯', name: 'נָמֵר', color: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+            { emoji: '🐨', name: 'קוֹאָלָה', color: 'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)' },
+            { emoji: '🐸', name: 'צְפַרְדֵּעַ', color: 'linear-gradient(135deg, #52c234 0%, #061700 100%)' },
+            { emoji: '🐵', name: 'קוֹף', color: 'linear-gradient(135deg, #f77062 0%, #fe5196 100%)' }
         ];
 
         // Used vehicles and prizes pools
@@ -263,7 +263,7 @@ class HebrewMatchGame {
      */
     setupMatchingGame() {
         // Update title
-        this.elements.matchingTitle.textContent = `שלב ${this.currentLevel.id}`;
+        this.elements.matchingTitle.textContent = `שָׁלָב ${this.currentLevel.id}`;
 
         // Clear previous content
         this.elements.emojiColumn.innerHTML = '';
@@ -392,7 +392,7 @@ class HebrewMatchGame {
         });
 
         // Show feedback
-        this.showFeedback('נכון! 🎉', 'correct');
+        this.showFeedback('נָכוֹן! 🎉', 'correct');
 
         // Check if all matched
         if (this.currentMatches.length === 3) {
@@ -411,7 +411,7 @@ class HebrewMatchGame {
      */
     handleWrongMatch() {
         // Show feedback
-        this.showFeedback('נסה שוב', 'incorrect');
+        this.showFeedback('נַסֶּה שׁוּב', 'incorrect');
 
         // Shake elements
         this.selectedEmoji.classList.add('shake');
@@ -435,7 +435,7 @@ class HebrewMatchGame {
      * Complete matching phase and move to puzzle
      */
     completeMatching() {
-        this.showFeedback('כל הכבוד! עכשיו בוא נרכיב פאזל! 🎊', 'correct');
+        this.showFeedback('כָּל הַכָּבוֹד! עַכְשָׁיו בּוֹא נְרַכֵּב פַּאזָל! 🎊', 'correct');
 
         setTimeout(() => {
             this.startPuzzle();
@@ -583,7 +583,7 @@ class HebrewMatchGame {
             }
         } else {
             // Wrong placement
-            this.showFeedback('נסה מקום אחר', 'incorrect');
+            this.showFeedback('נַסֶּה מָקוֹם אַחֵר', 'incorrect');
             setTimeout(() => {
                 this.elements.puzzleFeedback.textContent = '';
             }, 1000);
@@ -606,7 +606,7 @@ class HebrewMatchGame {
      * Complete puzzle and save to collection
      */
     completePuzzle() {
-        this.showFeedback('מדהים! זכית ב' + this.currentLevel.prize.name + '! 🎉🎊', 'correct');
+        this.showFeedback('מַדְהִים! זָכִיתָ בְּ' + this.currentLevel.prize.name + '! 🎉🎊', 'correct');
 
         // Add prize to collection
         this.collectedPrizes.push(this.currentLevel.prize);
@@ -631,7 +631,7 @@ class HebrewMatchGame {
         if (this.collectedPrizes.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'collection-empty';
-            empty.textContent = 'עדיין לא אספת תמונות.\nשחק כדי לאסוף!';
+            empty.textContent = 'עֲדַיִן לֹא אָסַפְתָּ תְּמוּנוֹת.\nשַׂחֵק כְּדֵי לֶאֱסוֹף!';
             this.elements.puzzleCollection.appendChild(empty);
         } else {
             this.collectedPrizes.forEach(prize => {
