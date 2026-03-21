@@ -16,7 +16,7 @@ A fun, interactive math game designed for first-grade students to practice addit
 
 ## 🚀 Play Now
 
-[**Play Math Orb Collector**](https://amigoldenberg.github.io/math-game/)
+[**Play Math Orb Collector**](https://amigold.github.io/math-game/)
 
 ## 📸 Screenshots
 
