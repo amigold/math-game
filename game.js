@@ -8,6 +8,7 @@ class MathOrbGame {
         this.magicFaceCollection = this.loadMagicCollection();
         this.pictureCollection = this.loadPictureCollection();
         this.selectedDifficulty = this.loadSelectedDifficulty() || 'easy';
+        this.selectedMode = this.loadSelectedMode() || 'addition';
         this.problemsSolved = 0;
         this.isMagicBall = false;
         this.isRainbowBall = false;
@@ -64,6 +65,7 @@ class MathOrbGame {
         this.timerDisplay = document.getElementById('timer-display');
         this.problemsCounterSpan = document.getElementById('problems-counter');
         this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
+        this.modeButtons = document.querySelectorAll('.mode-btn');
 
         // Event listeners
         this.checkButton.addEventListener('click', () => this.checkAnswer());
@@ -76,12 +78,16 @@ class MathOrbGame {
         this.difficultyButtons.forEach(btn => {
             btn.addEventListener('click', () => this.setDifficulty(btn.dataset.level));
         });
+        this.modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => this.setMode(btn.dataset.mode));
+        });
 
         // Initialize game
         this.updateCollectionDisplay();
         this.updateMagicCollectionDisplay();
         this.updatePictureCollectionDisplay();
         this.updateDifficultyDisplay();
+        this.updateModeDisplay();
         this.generateNewProblem();
     }
 
@@ -90,40 +96,52 @@ class MathOrbGame {
         let num1, num2;
         const level = this.selectedDifficulty;
 
+        // Determine operator based on selected mode
+        let operator;
+        if (this.selectedMode === 'subtraction') {
+            operator = '-';
+        } else if (this.selectedMode === 'both') {
+            operator = Math.random() < 0.5 ? '+' : '-';
+        } else {
+            operator = '+';
+        }
+
         if (isMagic) {
             if (level === 'easy') {
-                // Easy magic: upper single-digit + small single-digit
                 num1 = Math.floor(Math.random() * 5) + 5; // 5-9
                 num2 = Math.floor(Math.random() * 5) + 1; // 1-5
             } else if (level === 'hard') {
-                // Hard magic: larger double-digit + single-digit
                 num1 = Math.floor(Math.random() * 11) + 15; // 15-25
                 num2 = Math.floor(Math.random() * 11) + 5;  // 5-15
             } else {
-                // Medium magic: double-digit + single-digit
+                // Medium magic
                 num1 = Math.floor(Math.random() * 10) + 10; // 10-19
                 num2 = Math.floor(Math.random() * 10);       // 0-9
             }
         } else {
             if (level === 'easy') {
-                // Easy: small numbers only (sums up to 10)
                 num1 = Math.floor(Math.random() * 5) + 1; // 1-5
                 num2 = Math.floor(Math.random() * 5) + 1; // 1-5
             } else if (level === 'hard') {
-                // Hard: larger numbers (sums 10-30)
                 num1 = Math.floor(Math.random() * 11) + 5; // 5-15
                 num2 = Math.floor(Math.random() * 11) + 5; // 5-15
             } else {
-                // Medium: full single-digit range (sums up to 18)
+                // Medium: full single-digit range
                 num1 = Math.floor(Math.random() * 10); // 0-9
                 num2 = Math.floor(Math.random() * 10); // 0-9
             }
         }
 
+        // For subtraction ensure no negative result (swap if needed)
+        if (operator === '-' && num2 > num1) {
+            [num1, num2] = [num2, num1];
+        }
+
         return {
             num1: num1,
             num2: num2,
-            answer: num1 + num2
+            operator: operator,
+            answer: operator === '-' ? num1 - num2 : num1 + num2
         };
     }
 
@@ -185,7 +203,7 @@ class MathOrbGame {
 
             const problemText = document.createElement('div');
             problemText.className = 'problem-text';
-            problemText.textContent = `${this.currentProblem.num1} + ${this.currentProblem.num2}`;
+            problemText.textContent = `${this.currentProblem.num1} ${this.currentProblem.operator} ${this.currentProblem.num2}`;
             orb.appendChild(problemText);
 
             // Show input/check button
@@ -556,7 +574,7 @@ class MathOrbGame {
 
         const problemText = document.createElement('div');
         problemText.className = 'problem-text';
-        problemText.textContent = `${this.currentProblem.num1} + ${this.currentProblem.num2}`;
+        problemText.textContent = `${this.currentProblem.num1} ${this.currentProblem.operator} ${this.currentProblem.num2}`;
         orb.appendChild(problemText);
 
         this.orbContainer.appendChild(orb);
@@ -736,6 +754,33 @@ class MathOrbGame {
     // Load the persisted difficulty selection
     loadSelectedDifficulty() {
         return localStorage.getItem('mathOrbDifficulty');
+    }
+
+    // Set the active operation mode
+    setMode(mode) {
+        this.selectedMode = mode;
+        this.saveSelectedMode();
+        this.updateModeDisplay();
+        if (!this.inChallengeMode) {
+            this.generateNewProblem();
+        }
+    }
+
+    // Update which mode button appears active
+    updateModeDisplay() {
+        this.modeButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === this.selectedMode);
+        });
+    }
+
+    // Persist the selected mode
+    saveSelectedMode() {
+        localStorage.setItem('mathOrbMode', this.selectedMode);
+    }
+
+    // Load the persisted mode selection
+    loadSelectedMode() {
+        return localStorage.getItem('mathOrbMode');
     }
 
 }
