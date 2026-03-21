@@ -7,7 +7,7 @@ class MathOrbGame {
         this.emojiCollection = this.loadCollection();
         this.magicFaceCollection = this.loadMagicCollection();
         this.pictureCollection = this.loadPictureCollection();
-        this.difficulty = 1; // Starts at level 1
+        this.selectedDifficulty = this.loadSelectedDifficulty() || 'easy';
         this.problemsSolved = 0;
         this.isMagicBall = false;
         this.isRainbowBall = false;
@@ -63,6 +63,7 @@ class MathOrbGame {
         this.challengeTimerDiv = document.getElementById('challenge-timer');
         this.timerDisplay = document.getElementById('timer-display');
         this.problemsCounterSpan = document.getElementById('problems-counter');
+        this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
 
         // Event listeners
         this.checkButton.addEventListener('click', () => this.checkAnswer());
@@ -72,36 +73,50 @@ class MathOrbGame {
             }
         });
         this.resetButton.addEventListener('click', () => this.resetCollection());
+        this.difficultyButtons.forEach(btn => {
+            btn.addEventListener('click', () => this.setDifficulty(btn.dataset.level));
+        });
 
         // Initialize game
         this.updateCollectionDisplay();
         this.updateMagicCollectionDisplay();
         this.updatePictureCollectionDisplay();
+        this.updateDifficultyDisplay();
         this.generateNewProblem();
     }
 
-    // Generate a random math problem
+    // Generate a random math problem based on selected difficulty
     generateMathProblem(isMagic = false) {
         let num1, num2;
+        const level = this.selectedDifficulty;
 
         if (isMagic) {
-            // Magic balls: One double-digit, one single-digit
-            num1 = Math.floor(Math.random() * 10) + 10; // 10-19
-            num2 = Math.floor(Math.random() * 10); // 0-9
-        } else {
-            // Adjust difficulty based on progress
-            if (this.difficulty <= 3) {
-                // Easy: 0-9 + 0-9
-                num1 = Math.floor(Math.random() * 10);
-                num2 = Math.floor(Math.random() * 10);
-            } else if (this.difficulty <= 6) {
-                // Medium: results up to 15
-                num1 = Math.floor(Math.random() * 10);
-                num2 = Math.floor(Math.random() * (15 - num1));
+            if (level === 'easy') {
+                // Easy magic: upper single-digit + small single-digit
+                num1 = Math.floor(Math.random() * 5) + 5; // 5-9
+                num2 = Math.floor(Math.random() * 5) + 1; // 1-5
+            } else if (level === 'hard') {
+                // Hard magic: larger double-digit + single-digit
+                num1 = Math.floor(Math.random() * 11) + 15; // 15-25
+                num2 = Math.floor(Math.random() * 11) + 5;  // 5-15
             } else {
-                // Hard: results up to 20
-                num1 = Math.floor(Math.random() * 15);
-                num2 = Math.floor(Math.random() * (20 - num1));
+                // Medium magic: double-digit + single-digit
+                num1 = Math.floor(Math.random() * 10) + 10; // 10-19
+                num2 = Math.floor(Math.random() * 10);       // 0-9
+            }
+        } else {
+            if (level === 'easy') {
+                // Easy: small numbers only (sums up to 10)
+                num1 = Math.floor(Math.random() * 5) + 1; // 1-5
+                num2 = Math.floor(Math.random() * 5) + 1; // 1-5
+            } else if (level === 'hard') {
+                // Hard: larger numbers (sums 10-30)
+                num1 = Math.floor(Math.random() * 11) + 5; // 5-15
+                num2 = Math.floor(Math.random() * 11) + 5; // 5-15
+            } else {
+                // Medium: full single-digit range (sums up to 18)
+                num1 = Math.floor(Math.random() * 10); // 0-9
+                num2 = Math.floor(Math.random() * 10); // 0-9
             }
         }
 
@@ -318,11 +333,6 @@ class MathOrbGame {
                 emoji = this.getRandomEmoji();
                 this.revealEmoji(emoji);
                 this.addToCollection(emoji);
-
-                // Increase difficulty gradually
-                if (this.emojiCollection.length % 5 === 0) {
-                    this.difficulty++;
-                }
             }
 
             // Generate next problem after delay
@@ -440,7 +450,6 @@ class MathOrbGame {
             this.emojiCollection = [];
             this.magicFaceCollection = [];
             this.pictureCollection = [];
-            this.difficulty = 1;
             this.problemsSolved = 0;
             localStorage.removeItem('mathOrbCollection');
             localStorage.removeItem('mathOrbMagicCollection');
@@ -700,6 +709,33 @@ class MathOrbGame {
     loadPictureCollection() {
         const saved = localStorage.getItem('mathOrbPictureCollection');
         return saved ? JSON.parse(saved) : [];
+    }
+
+    // Set the active difficulty level
+    setDifficulty(level) {
+        this.selectedDifficulty = level;
+        this.saveSelectedDifficulty();
+        this.updateDifficultyDisplay();
+        if (!this.inChallengeMode) {
+            this.generateNewProblem();
+        }
+    }
+
+    // Update which difficulty button appears active
+    updateDifficultyDisplay() {
+        this.difficultyButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.level === this.selectedDifficulty);
+        });
+    }
+
+    // Persist the selected difficulty
+    saveSelectedDifficulty() {
+        localStorage.setItem('mathOrbDifficulty', this.selectedDifficulty);
+    }
+
+    // Load the persisted difficulty selection
+    loadSelectedDifficulty() {
+        return localStorage.getItem('mathOrbDifficulty');
     }
 
 }
