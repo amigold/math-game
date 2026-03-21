@@ -1,5 +1,11 @@
 // Math Orb Collector - Game Logic
 
+// Number of consecutive correct answers required to auto-advance one level
+const LEVEL_UP_THRESHOLD = 5;
+
+// Explicit map from each level to the next
+const NEXT_LEVEL = { '1': '2', '2': '3' };
+
 class MathOrbGame {
     constructor() {
         // Game state
@@ -7,9 +13,10 @@ class MathOrbGame {
         this.emojiCollection = this.loadCollection();
         this.magicFaceCollection = this.loadMagicCollection();
         this.pictureCollection = this.loadPictureCollection();
-        this.selectedDifficulty = this.loadSelectedDifficulty() || 'easy';
+        this.selectedDifficulty = this.loadSelectedDifficulty() || '1';
         this.selectedMode = this.loadSelectedMode() || 'addition';
         this.problemsSolved = 0;
+        this.consecutiveCorrect = 0;
         this.isMagicBall = false;
         this.isRainbowBall = false;
 
@@ -107,26 +114,26 @@ class MathOrbGame {
         }
 
         if (isMagic) {
-            if (level === 'easy') {
+            if (level === '1') {
                 num1 = Math.floor(Math.random() * 5) + 5; // 5-9
                 num2 = Math.floor(Math.random() * 5) + 1; // 1-5
-            } else if (level === 'hard') {
+            } else if (level === '3') {
                 num1 = Math.floor(Math.random() * 11) + 15; // 15-25
                 num2 = Math.floor(Math.random() * 11) + 5;  // 5-15
             } else {
-                // Medium magic
+                // Level 2 magic
                 num1 = Math.floor(Math.random() * 10) + 10; // 10-19
                 num2 = Math.floor(Math.random() * 10);       // 0-9
             }
         } else {
-            if (level === 'easy') {
+            if (level === '1') {
                 num1 = Math.floor(Math.random() * 5) + 1; // 1-5
                 num2 = Math.floor(Math.random() * 5) + 1; // 1-5
-            } else if (level === 'hard') {
+            } else if (level === '3') {
                 num1 = Math.floor(Math.random() * 11) + 5; // 5-15
                 num2 = Math.floor(Math.random() * 11) + 5; // 5-15
             } else {
-                // Medium: full single-digit range
+                // Level 2: full single-digit range
                 num1 = Math.floor(Math.random() * 10); // 0-9
                 num2 = Math.floor(Math.random() * 10); // 0-9
             }
@@ -325,8 +332,16 @@ class MathOrbGame {
 
     // Handle correct answer
     handleCorrectAnswer(orb) {
+        // Increment consecutive correct counter and check for auto-level-up
+        this.consecutiveCorrect++;
+        const leveledUp = this.maybeAutoAdvanceLevel();
+
         // Show feedback
-        this.feedbackMessage.textContent = this.isMagicBall ? 'Amazing! Magic Face!' : 'Great job!';
+        let feedbackText = this.isMagicBall ? 'Amazing! Magic Face!' : 'Great job!';
+        if (leveledUp) {
+            feedbackText += ' ⬆️ Level Up!';
+        }
+        this.feedbackMessage.textContent = feedbackText;
         this.feedbackMessage.className = 'feedback-message correct show';
 
         // Play success sound
@@ -362,6 +377,9 @@ class MathOrbGame {
 
     // Handle wrong answer
     handleWrongAnswer(orb) {
+        // Reset consecutive correct streak
+        this.consecutiveCorrect = 0;
+
         // Show feedback
         this.feedbackMessage.textContent = 'Try again!';
         this.feedbackMessage.className = 'feedback-message incorrect show';
@@ -732,6 +750,7 @@ class MathOrbGame {
     // Set the active difficulty level
     setDifficulty(level) {
         this.selectedDifficulty = level;
+        this.consecutiveCorrect = 0;
         this.saveSelectedDifficulty();
         this.updateDifficultyDisplay();
         if (!this.inChallengeMode) {
@@ -753,7 +772,30 @@ class MathOrbGame {
 
     // Load the persisted difficulty selection
     loadSelectedDifficulty() {
-        return localStorage.getItem('mathOrbDifficulty');
+        const saved = localStorage.getItem('mathOrbDifficulty');
+        // Migrate legacy string values to numbered levels
+        if (saved === 'easy') return '1';
+        if (saved === 'medium') return '2';
+        if (saved === 'hard') return '3';
+        return saved;
+    }
+
+    // Auto-advance level after consecutive correct answers threshold. Returns true if leveled up.
+    maybeAutoAdvanceLevel() {
+        if (this.consecutiveCorrect < LEVEL_UP_THRESHOLD) {
+            return false;
+        }
+        const next = NEXT_LEVEL[this.selectedDifficulty];
+        if (!next) {
+            // Already at max level; reset streak so the message doesn't keep appearing
+            this.consecutiveCorrect = 0;
+            return false;
+        }
+        this.selectedDifficulty = next;
+        this.consecutiveCorrect = 0;
+        this.saveSelectedDifficulty();
+        this.updateDifficultyDisplay();
+        return true;
     }
 
     // Set the active operation mode

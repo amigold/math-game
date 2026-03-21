@@ -616,21 +616,21 @@ body {
     color: #667eea;
 }
 
-.difficulty-btn[data-level="easy"].active {
+.difficulty-btn[data-level="1"].active {
     background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
     color: white;
     border-color: transparent;
     box-shadow: 0 2px 8px rgba(67, 233, 123, 0.5);
 }
 
-.difficulty-btn[data-level="medium"].active {
+.difficulty-btn[data-level="2"].active {
     background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
     color: white;
     border-color: transparent;
     box-shadow: 0 2px 8px rgba(250, 112, 154, 0.5);
 }
 
-.difficulty-btn[data-level="hard"].active {
+.difficulty-btn[data-level="3"].active {
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     color: white;
     border-color: transparent;
