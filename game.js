@@ -6,6 +6,12 @@ const LEVEL_UP_THRESHOLD = 5;
 // Explicit map from each level to the next
 const NEXT_LEVEL = { '1': '2', '2': '3' };
 
+// Maximum number of beads per group to display visually
+const MAX_BEADS_DISPLAY = 20;
+
+// Stagger delay (ms) between each bead's pop-in animation
+const BEAD_ANIMATION_DELAY_MS = 40;
+
 class MathOrbGame {
     constructor() {
         // Game state
@@ -73,6 +79,7 @@ class MathOrbGame {
         this.problemsCounterSpan = document.getElementById('problems-counter');
         this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
         this.modeButtons = document.querySelectorAll('.mode-btn');
+        this.countingBeadsDiv = document.getElementById('counting-beads');
 
         // Event listeners
         this.checkButton.addEventListener('click', () => this.checkAnswer());
@@ -186,12 +193,14 @@ class MathOrbGame {
             // Add click event to start challenge
             orb.addEventListener('click', () => this.startChallenge());
 
-            // Hide input/check button for rainbow ball
+            // Hide input/check button and beads for rainbow ball
             this.answerInput.style.display = 'none';
             this.checkButton.style.display = 'none';
+            this.updateCountingBeads(null);
         } else {
             // Regular or magic ball
             this.currentProblem = this.generateMathProblem(this.isMagicBall);
+            this.updateCountingBeads(this.currentProblem);
 
             orb.className = this.isMagicBall ? 'orb magic-orb' : 'orb';
 
@@ -581,6 +590,7 @@ class MathOrbGame {
     // Generate a problem during challenge mode
     generateChallengeProb() {
         this.currentProblem = this.generateMathProblem(false);
+        this.updateCountingBeads(this.currentProblem);
 
         // Clear previous orb
         this.orbContainer.innerHTML = '';
@@ -745,6 +755,77 @@ class MathOrbGame {
     loadPictureCollection() {
         const saved = localStorage.getItem('mathOrbPictureCollection');
         return saved ? JSON.parse(saved) : [];
+    }
+
+    // Update the visual counting beads shown below the orb
+    updateCountingBeads(problem) {
+        if (!problem || problem.num1 > MAX_BEADS_DISPLAY || problem.num2 > MAX_BEADS_DISPLAY) {
+            this.countingBeadsDiv.classList.add('hidden');
+            this.countingBeadsDiv.innerHTML = '';
+            return;
+        }
+
+        this.countingBeadsDiv.innerHTML = '';
+        this.countingBeadsDiv.classList.remove('hidden');
+
+        const { num1, num2, operator } = problem;
+
+        if (operator === '+') {
+            this.countingBeadsDiv.appendChild(this.createBeadGroup(num1, 'bead-primary'));
+
+            const sep = document.createElement('span');
+            sep.className = 'bead-operator';
+            sep.textContent = '+';
+            this.countingBeadsDiv.appendChild(sep);
+
+            this.countingBeadsDiv.appendChild(this.createBeadGroup(num2, 'bead-secondary'));
+        } else {
+            // Subtraction: bright beads = answer (first num1-num2), grey beads = removed (last num2)
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bead-group-wrapper';
+
+            const group = document.createElement('div');
+            group.className = 'bead-group';
+
+            for (let i = 0; i < num1; i++) {
+                const bead = document.createElement('div');
+                bead.className = `bead ${i < num1 - num2 ? 'bead-primary' : 'bead-subtract'}`;
+                bead.style.animationDelay = `${i * BEAD_ANIMATION_DELAY_MS}ms`;
+                group.appendChild(bead);
+            }
+
+            const countLabel = document.createElement('div');
+            countLabel.className = 'bead-count';
+            countLabel.textContent = num1;
+
+            wrapper.appendChild(group);
+            wrapper.appendChild(countLabel);
+            this.countingBeadsDiv.appendChild(wrapper);
+        }
+    }
+
+    // Build a bead group wrapper with colored beads and a count label
+    createBeadGroup(count, colorClass) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'bead-group-wrapper';
+
+        const group = document.createElement('div');
+        group.className = 'bead-group';
+
+        for (let i = 0; i < count; i++) {
+            const bead = document.createElement('div');
+            bead.className = `bead ${colorClass}`;
+            bead.style.animationDelay = `${i * BEAD_ANIMATION_DELAY_MS}ms`;
+            group.appendChild(bead);
+        }
+
+        const countLabel = document.createElement('div');
+        countLabel.className = 'bead-count';
+        countLabel.textContent = count;
+
+        wrapper.appendChild(group);
+        wrapper.appendChild(countLabel);
+        return wrapper;
     }
 
     // Set the active difficulty level

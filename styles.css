@@ -691,6 +691,78 @@ body {
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
 }
 
+/* Counting Beads (visual manipulatives) */
+.counting-beads {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    flex-wrap: wrap;
+    max-width: 500px;
+}
+
+.bead-group-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.bead-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    max-width: 170px; /* ~5 beads per row */
+}
+
+.bead {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 -3px 6px rgba(0, 0, 0, 0.15);
+    animation: bead-pop 0.25s ease-out both;
+}
+
+@keyframes bead-pop {
+    0%   { transform: scale(0); opacity: 0; }
+    70%  { transform: scale(1.25); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.bead-primary {
+    background: radial-gradient(circle at 35% 35%, #ffaaaa, #ee5a6f);
+}
+
+.bead-secondary {
+    background: radial-gradient(circle at 35% 35%, #7ec8f7, #4facfe);
+}
+
+.bead-subtract {
+    background: radial-gradient(circle at 35% 35%, #ddd, #aaa);
+    opacity: 0.4;
+}
+
+.bead-operator {
+    font-size: 28px;
+    font-weight: bold;
+    color: #667eea;
+    align-self: center;
+    line-height: 1;
+}
+
+.bead-count {
+    font-size: 18px;
+    font-weight: bold;
+    color: #667eea;
+    text-align: center;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .game-container {
