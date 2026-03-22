@@ -6,11 +6,11 @@ const LEVEL_UP_THRESHOLD = 5;
 // Explicit map from each level to the next
 const NEXT_LEVEL = { '1': '2', '2': '3' };
 
-// Maximum number of beads per group to display visually
-const MAX_BEADS_DISPLAY = 20;
+// Maximum total beads to show in the supply tray
+const MAX_SUPPLY_BEADS = 20;
 
-// Stagger delay (ms) between each bead's pop-in animation
-const BEAD_ANIMATION_DELAY_MS = 40;
+// Colors for bead blocks
+const BEAD_COLORS = ['bead-red', 'bead-blue', 'bead-green', 'bead-yellow', 'bead-purple'];
 
 class MathOrbGame {
     constructor() {
@@ -84,7 +84,15 @@ class MathOrbGame {
         this.exitButton = null;
         this.difficultyButtons = null;
         this.modeButtons = null;
-        this.countingBeadsDiv = null;
+        this.beadWorkspace = null;
+        this.beadSupply = null;
+        this.beadDropzone = null;
+        this.dropzoneCount = null;
+
+        // Drag state
+        this.draggedBead = null;
+        this.dragOffsetX = 0;
+        this.dragOffsetY = 0;
 
         // Event handlers (stored for cleanup)
         this.boundCheckAnswer = null;
@@ -122,7 +130,10 @@ class MathOrbGame {
         this.exitButton = document.getElementById('exit-button');
         this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
         this.modeButtons = document.querySelectorAll('.mode-btn');
-        this.countingBeadsDiv = document.getElementById('counting-beads');
+        this.beadWorkspace = document.getElementById('bead-workspace');
+        this.beadSupply = document.getElementById('bead-supply');
+        this.beadDropzone = document.getElementById('bead-dropzone');
+        this.dropzoneCount = document.getElementById('dropzone-count');
 
         // Load saved collections
         this.emojiCollection = this.loadCollection();
@@ -156,6 +167,9 @@ class MathOrbGame {
         this.modeButtons.forEach(btn => {
             btn.addEventListener('click', () => this.setMode(btn.dataset.mode));
         });
+
+        // Set up drag-and-drop for bead workspace (mouse + touch)
+        this.setupBeadDragHandlers();
 
         // Update displays
         this.updateCollectionDisplay();
@@ -328,11 +342,11 @@ class MathOrbGame {
             // Hide input/check button and beads for rainbow ball
             this.answerInput.style.display = 'none';
             this.checkButton.style.display = 'none';
-            this.updateCountingBeads(null);
+            this.updateBeadWorkspace(null);
         } else {
             // Regular or magic ball
             this.currentProblem = this.generateMathProblem(this.isMagicBall);
-            this.updateCountingBeads(this.currentProblem);
+            this.updateBeadWorkspace(this.currentProblem);
 
             orb.className = this.isMagicBall ? 'orb magic-orb' : 'orb';
 
@@ -726,7 +740,7 @@ class MathOrbGame {
     // Generate a problem during challenge mode
     generateChallengeProb() {
         this.currentProblem = this.generateMathProblem(false);
-        this.updateCountingBeads(this.currentProblem);
+        this.updateBeadWorkspace(this.currentProblem);
 
         // Clear previous orb
         this.orbContainer.innerHTML = '';
@@ -893,77 +907,155 @@ class MathOrbGame {
         return saved ? JSON.parse(saved) : [];
     }
 
-    // Update the visual counting beads shown below the orb
-    updateCountingBeads(problem) {
-        if (!this.countingBeadsDiv) return;
+    // Show or hide the bead workspace and populate supply tray
+    updateBeadWorkspace(problem) {
+        if (!this.beadWorkspace) return;
 
-        if (!problem || problem.num1 > MAX_BEADS_DISPLAY || problem.num2 > MAX_BEADS_DISPLAY) {
-            this.countingBeadsDiv.classList.add('hidden');
-            this.countingBeadsDiv.innerHTML = '';
+        if (!problem || problem.answer > MAX_SUPPLY_BEADS) {
+            this.beadWorkspace.classList.add('hidden');
             return;
         }
 
-        this.countingBeadsDiv.innerHTML = '';
-        this.countingBeadsDiv.classList.remove('hidden');
+        // Reset dropzone
+        this.beadDropzone.querySelectorAll('.bead-block').forEach(b => b.remove());
+        this.beadDropzone.classList.remove('has-beads');
+        this.dropzoneCount.textContent = '0';
 
-        const { num1, num2, operator } = problem;
+        // Populate supply tray with enough beads to solve the problem
+        // Give a generous supply: max of the two operands + answer (capped)
+        const supplyCount = Math.min(problem.num1 + problem.num2, MAX_SUPPLY_BEADS);
+        const supplyContainer = this.beadSupply;
+        // Keep the label, remove old beads
+        supplyContainer.querySelectorAll('.bead-block').forEach(b => b.remove());
 
-        if (operator === '+') {
-            this.countingBeadsDiv.appendChild(this.createBeadGroup(num1, 'bead-primary'));
-
-            const sep = document.createElement('span');
-            sep.className = 'bead-operator';
-            sep.textContent = '+';
-            this.countingBeadsDiv.appendChild(sep);
-
-            this.countingBeadsDiv.appendChild(this.createBeadGroup(num2, 'bead-secondary'));
-        } else {
-            // Subtraction: bright beads = answer (first num1-num2), grey beads = removed (last num2)
-            const wrapper = document.createElement('div');
-            wrapper.className = 'bead-group-wrapper';
-
-            const group = document.createElement('div');
-            group.className = 'bead-group';
-
-            for (let i = 0; i < num1; i++) {
-                const bead = document.createElement('div');
-                bead.className = `bead ${i < num1 - num2 ? 'bead-primary' : 'bead-subtract'}`;
-                bead.style.animationDelay = `${i * BEAD_ANIMATION_DELAY_MS}ms`;
-                group.appendChild(bead);
-            }
-
-            const countLabel = document.createElement('div');
-            countLabel.className = 'bead-count';
-            countLabel.textContent = num1;
-
-            wrapper.appendChild(group);
-            wrapper.appendChild(countLabel);
-            this.countingBeadsDiv.appendChild(wrapper);
+        for (let i = 0; i < supplyCount; i++) {
+            const block = document.createElement('div');
+            block.className = `bead-block ${BEAD_COLORS[i % BEAD_COLORS.length]}`;
+            block.setAttribute('draggable', 'false'); // we handle drag manually
+            supplyContainer.appendChild(block);
         }
+
+        this.beadWorkspace.classList.remove('hidden');
     }
 
-    // Build a bead group wrapper with colored beads and a count label
-    createBeadGroup(count, colorClass) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'bead-group-wrapper';
+    // Set up mouse and touch drag handlers for bead blocks
+    setupBeadDragHandlers() {
+        // We use event delegation on the workspace
+        const ws = this.beadWorkspace;
+        if (!ws) return;
 
-        const group = document.createElement('div');
-        group.className = 'bead-group';
+        // --- Mouse events ---
+        ws.addEventListener('mousedown', (e) => this.onBeadPointerDown(e, e.clientX, e.clientY));
+        document.addEventListener('mousemove', (e) => this.onBeadPointerMove(e, e.clientX, e.clientY));
+        document.addEventListener('mouseup', (e) => this.onBeadPointerUp(e, e.clientX, e.clientY));
 
-        for (let i = 0; i < count; i++) {
-            const bead = document.createElement('div');
-            bead.className = `bead ${colorClass}`;
-            bead.style.animationDelay = `${i * BEAD_ANIMATION_DELAY_MS}ms`;
-            group.appendChild(bead);
+        // --- Touch events ---
+        ws.addEventListener('touchstart', (e) => {
+            const t = e.touches[0];
+            this.onBeadPointerDown(e, t.clientX, t.clientY);
+        }, { passive: false });
+        document.addEventListener('touchmove', (e) => {
+            if (!this.draggedBead) return;
+            e.preventDefault();
+            const t = e.touches[0];
+            this.onBeadPointerMove(e, t.clientX, t.clientY);
+        }, { passive: false });
+        document.addEventListener('touchend', (e) => {
+            if (!this.draggedBead) return;
+            const t = e.changedTouches[0];
+            this.onBeadPointerUp(e, t.clientX, t.clientY);
+        });
+
+        // Visual feedback on dropzone
+        this.beadDropzone.addEventListener('dragover', (e) => e.preventDefault());
+    }
+
+    onBeadPointerDown(e, clientX, clientY) {
+        const block = e.target.closest('.bead-block');
+        if (!block) return;
+        e.preventDefault();
+
+        this.draggedBead = block;
+        block.classList.add('dragging');
+
+        // Create a floating clone for visual feedback
+        const rect = block.getBoundingClientRect();
+        this.dragOffsetX = clientX - rect.left;
+        this.dragOffsetY = clientY - rect.top;
+
+        const ghost = block.cloneNode(true);
+        ghost.className = block.className + ' bead-ghost';
+        ghost.style.position = 'fixed';
+        ghost.style.left = `${rect.left}px`;
+        ghost.style.top = `${rect.top}px`;
+        ghost.style.width = `${rect.width}px`;
+        ghost.style.height = `${rect.height}px`;
+        ghost.style.pointerEvents = 'none';
+        ghost.style.zIndex = '9999';
+        ghost.style.opacity = '0.85';
+        document.body.appendChild(ghost);
+        this.dragGhost = ghost;
+
+        // Dim the original
+        block.style.opacity = '0.3';
+    }
+
+    onBeadPointerMove(e, clientX, clientY) {
+        if (!this.draggedBead || !this.dragGhost) return;
+
+        this.dragGhost.style.left = `${clientX - this.dragOffsetX}px`;
+        this.dragGhost.style.top = `${clientY - this.dragOffsetY}px`;
+
+        // Highlight dropzone when hovering over it
+        const dzRect = this.beadDropzone.getBoundingClientRect();
+        const over = clientX >= dzRect.left && clientX <= dzRect.right &&
+                     clientY >= dzRect.top && clientY <= dzRect.bottom;
+        this.beadDropzone.classList.toggle('drag-over', over);
+    }
+
+    onBeadPointerUp(e, clientX, clientY) {
+        if (!this.draggedBead) return;
+
+        const block = this.draggedBead;
+        block.classList.remove('dragging');
+        block.style.opacity = '';
+        this.beadDropzone.classList.remove('drag-over');
+
+        // Remove ghost
+        if (this.dragGhost) {
+            this.dragGhost.remove();
+            this.dragGhost = null;
         }
 
-        const countLabel = document.createElement('div');
-        countLabel.className = 'bead-count';
-        countLabel.textContent = count;
+        // Check if dropped on dropzone or supply
+        const dzRect = this.beadDropzone.getBoundingClientRect();
+        const supRect = this.beadSupply.getBoundingClientRect();
+        const inDropzone = clientX >= dzRect.left && clientX <= dzRect.right &&
+                           clientY >= dzRect.top && clientY <= dzRect.bottom;
+        const inSupply = clientX >= supRect.left && clientX <= supRect.right &&
+                         clientY >= supRect.top && clientY <= supRect.bottom;
 
-        wrapper.appendChild(group);
-        wrapper.appendChild(countLabel);
-        return wrapper;
+        const wasInDropzone = block.parentElement === this.beadDropzone;
+
+        if (inDropzone && !wasInDropzone) {
+            // Move from supply to dropzone
+            this.beadDropzone.appendChild(block);
+            block.classList.add('just-landed');
+            setTimeout(() => block.classList.remove('just-landed'), 200);
+        } else if (inSupply && wasInDropzone) {
+            // Move back from dropzone to supply
+            this.beadSupply.appendChild(block);
+        }
+
+        // Update count
+        this.updateDropzoneCount();
+        this.draggedBead = null;
+    }
+
+    updateDropzoneCount() {
+        const count = this.beadDropzone.querySelectorAll('.bead-block').length;
+        this.dropzoneCount.textContent = count;
+        this.beadDropzone.classList.toggle('has-beads', count > 0);
     }
 
     // Set the active difficulty level
