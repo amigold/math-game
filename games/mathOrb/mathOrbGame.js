@@ -1,5 +1,17 @@
 // Math Orb Collector - Refactored Game Logic with Lifecycle Methods
 
+// Number of consecutive correct answers required to auto-advance one level
+const LEVEL_UP_THRESHOLD = 5;
+
+// Explicit map from each level to the next
+const NEXT_LEVEL = { '1': '2', '2': '3' };
+
+// Maximum number of beads per group to display visually
+const MAX_BEADS_DISPLAY = 20;
+
+// Stagger delay (ms) between each bead's pop-in animation
+const BEAD_ANIMATION_DELAY_MS = 40;
+
 class MathOrbGame {
     constructor() {
         // Game state
@@ -7,8 +19,10 @@ class MathOrbGame {
         this.emojiCollection = [];
         this.magicFaceCollection = [];
         this.pictureCollection = [];
-        this.difficulty = 1;
+        this.selectedDifficulty = '1';
+        this.selectedMode = 'addition';
         this.problemsSolved = 0;
+        this.consecutiveCorrect = 0;
         this.isMagicBall = false;
         this.isRainbowBall = false;
 
@@ -68,6 +82,9 @@ class MathOrbGame {
         this.timerDisplay = null;
         this.problemsCounterSpan = null;
         this.exitButton = null;
+        this.difficultyButtons = null;
+        this.modeButtons = null;
+        this.countingBeadsDiv = null;
 
         // Event handlers (stored for cleanup)
         this.boundCheckAnswer = null;
@@ -103,11 +120,16 @@ class MathOrbGame {
         this.timerDisplay = document.getElementById('timer-display');
         this.problemsCounterSpan = document.getElementById('problems-counter');
         this.exitButton = document.getElementById('exit-button');
+        this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
+        this.modeButtons = document.querySelectorAll('.mode-btn');
+        this.countingBeadsDiv = document.getElementById('counting-beads');
 
         // Load saved collections
         this.emojiCollection = this.loadCollection();
         this.magicFaceCollection = this.loadMagicCollection();
         this.pictureCollection = this.loadPictureCollection();
+        this.selectedDifficulty = this.loadSelectedDifficulty() || '1';
+        this.selectedMode = this.loadSelectedMode() || 'addition';
 
         // Create bound event handlers
         this.boundCheckAnswer = () => this.checkAnswer();
@@ -128,11 +150,19 @@ class MathOrbGame {
         this.answerInput.addEventListener('keypress', this.boundKeyPress);
         this.resetButton.addEventListener('click', this.boundResetCollection);
         this.exitButton.addEventListener('click', this.boundExitToLobby);
+        this.difficultyButtons.forEach(btn => {
+            btn.addEventListener('click', () => this.setDifficulty(btn.dataset.level));
+        });
+        this.modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => this.setMode(btn.dataset.mode));
+        });
 
         // Update displays
         this.updateCollectionDisplay();
         this.updateMagicCollectionDisplay();
         this.updatePictureCollectionDisplay();
+        this.updateDifficultyDisplay();
+        this.updateModeDisplay();
 
         this.isInitialized = true;
         console.log('✓ Math Orb Game initialized');
@@ -208,35 +238,57 @@ class MathOrbGame {
         console.log('✓ Math Orb Game destroyed');
     }
 
-    // Generate a random math problem
+    // Generate a random math problem based on selected difficulty
     generateMathProblem(isMagic = false) {
         let num1, num2;
+        const level = this.selectedDifficulty;
+
+        // Determine operator based on selected mode
+        let operator;
+        if (this.selectedMode === 'subtraction') {
+            operator = '-';
+        } else if (this.selectedMode === 'both') {
+            operator = Math.random() < 0.5 ? '+' : '-';
+        } else {
+            operator = '+';
+        }
 
         if (isMagic) {
-            // Magic balls: One double-digit, one single-digit
-            num1 = Math.floor(Math.random() * 10) + 10; // 10-19
-            num2 = Math.floor(Math.random() * 10); // 0-9
-        } else {
-            // Adjust difficulty based on progress
-            if (this.difficulty <= 3) {
-                // Easy: 0-9 + 0-9
-                num1 = Math.floor(Math.random() * 10);
-                num2 = Math.floor(Math.random() * 10);
-            } else if (this.difficulty <= 6) {
-                // Medium: results up to 15
-                num1 = Math.floor(Math.random() * 10);
-                num2 = Math.floor(Math.random() * (15 - num1));
+            if (level === '1') {
+                num1 = Math.floor(Math.random() * 5) + 5; // 5-9
+                num2 = Math.floor(Math.random() * 5) + 1; // 1-5
+            } else if (level === '3') {
+                num1 = Math.floor(Math.random() * 11) + 15; // 15-25
+                num2 = Math.floor(Math.random() * 11) + 5;  // 5-15
             } else {
-                // Hard: results up to 20
-                num1 = Math.floor(Math.random() * 15);
-                num2 = Math.floor(Math.random() * (20 - num1));
+                // Level 2 magic
+                num1 = Math.floor(Math.random() * 10) + 10; // 10-19
+                num2 = Math.floor(Math.random() * 10);       // 0-9
             }
+        } else {
+            if (level === '1') {
+                num1 = Math.floor(Math.random() * 5) + 1; // 1-5
+                num2 = Math.floor(Math.random() * 5) + 1; // 1-5
+            } else if (level === '3') {
+                num1 = Math.floor(Math.random() * 11) + 5; // 5-15
+                num2 = Math.floor(Math.random() * 11) + 5; // 5-15
+            } else {
+                // Level 2: full single-digit range
+                num1 = Math.floor(Math.random() * 10); // 0-9
+                num2 = Math.floor(Math.random() * 10); // 0-9
+            }
+        }
+
+        // For subtraction ensure no negative result (swap if needed)
+        if (operator === '-' && num2 > num1) {
+            [num1, num2] = [num2, num1];
         }
 
         return {
             num1: num1,
             num2: num2,
-            answer: num1 + num2
+            operator: operator,
+            answer: operator === '-' ? num1 - num2 : num1 + num2
         };
     }
 
@@ -273,12 +325,14 @@ class MathOrbGame {
             // Add click event to start challenge
             orb.addEventListener('click', () => this.startChallenge());
 
-            // Hide input/check button for rainbow ball
+            // Hide input/check button and beads for rainbow ball
             this.answerInput.style.display = 'none';
             this.checkButton.style.display = 'none';
+            this.updateCountingBeads(null);
         } else {
             // Regular or magic ball
             this.currentProblem = this.generateMathProblem(this.isMagicBall);
+            this.updateCountingBeads(this.currentProblem);
 
             orb.className = this.isMagicBall ? 'orb magic-orb' : 'orb';
 
@@ -297,7 +351,7 @@ class MathOrbGame {
 
             const problemText = document.createElement('div');
             problemText.className = 'problem-text';
-            problemText.textContent = `${this.currentProblem.num1} + ${this.currentProblem.num2}`;
+            problemText.textContent = `${this.currentProblem.num1} ${this.currentProblem.operator} ${this.currentProblem.num2}`;
             orb.appendChild(problemText);
 
             // Show input/check button
@@ -423,8 +477,16 @@ class MathOrbGame {
 
     // Handle correct answer
     handleCorrectAnswer(orb) {
+        // Increment consecutive correct counter and check for auto-level-up
+        this.consecutiveCorrect++;
+        const leveledUp = this.maybeAutoAdvanceLevel();
+
         // Show feedback
-        this.feedbackMessage.textContent = this.isMagicBall ? 'Amazing! Magic Face!' : 'Great job!';
+        let feedbackText = this.isMagicBall ? 'Amazing! Magic Face!' : 'Great job!';
+        if (leveledUp) {
+            feedbackText += ' ⬆️ Level Up!';
+        }
+        this.feedbackMessage.textContent = feedbackText;
         this.feedbackMessage.className = 'feedback-message correct show';
 
         // Play success sound
@@ -449,11 +511,6 @@ class MathOrbGame {
                 emoji = this.getRandomEmoji();
                 this.revealEmoji(emoji);
                 this.addToCollection(emoji);
-
-                // Increase difficulty gradually
-                if (this.emojiCollection.length % 5 === 0) {
-                    this.difficulty++;
-                }
             }
 
             // Generate next problem after delay
@@ -465,6 +522,9 @@ class MathOrbGame {
 
     // Handle wrong answer
     handleWrongAnswer(orb) {
+        // Reset consecutive correct streak
+        this.consecutiveCorrect = 0;
+
         // Show feedback
         this.feedbackMessage.textContent = 'Try again!';
         this.feedbackMessage.className = 'feedback-message incorrect show';
@@ -571,7 +631,6 @@ class MathOrbGame {
             this.emojiCollection = [];
             this.magicFaceCollection = [];
             this.pictureCollection = [];
-            this.difficulty = 1;
             this.problemsSolved = 0;
             localStorage.removeItem('mathOrbCollection');
             localStorage.removeItem('mathOrbMagicCollection');
@@ -667,6 +726,7 @@ class MathOrbGame {
     // Generate a problem during challenge mode
     generateChallengeProb() {
         this.currentProblem = this.generateMathProblem(false);
+        this.updateCountingBeads(this.currentProblem);
 
         // Clear previous orb
         this.orbContainer.innerHTML = '';
@@ -678,7 +738,7 @@ class MathOrbGame {
 
         const problemText = document.createElement('div');
         problemText.className = 'problem-text';
-        problemText.textContent = `${this.currentProblem.num1} + ${this.currentProblem.num2}`;
+        problemText.textContent = `${this.currentProblem.num1} ${this.currentProblem.operator} ${this.currentProblem.num2}`;
         orb.appendChild(problemText);
 
         this.orbContainer.appendChild(orb);
@@ -831,6 +891,158 @@ class MathOrbGame {
     loadPictureCollection() {
         const saved = localStorage.getItem('mathOrbPictureCollection');
         return saved ? JSON.parse(saved) : [];
+    }
+
+    // Update the visual counting beads shown below the orb
+    updateCountingBeads(problem) {
+        if (!this.countingBeadsDiv) return;
+
+        if (!problem || problem.num1 > MAX_BEADS_DISPLAY || problem.num2 > MAX_BEADS_DISPLAY) {
+            this.countingBeadsDiv.classList.add('hidden');
+            this.countingBeadsDiv.innerHTML = '';
+            return;
+        }
+
+        this.countingBeadsDiv.innerHTML = '';
+        this.countingBeadsDiv.classList.remove('hidden');
+
+        const { num1, num2, operator } = problem;
+
+        if (operator === '+') {
+            this.countingBeadsDiv.appendChild(this.createBeadGroup(num1, 'bead-primary'));
+
+            const sep = document.createElement('span');
+            sep.className = 'bead-operator';
+            sep.textContent = '+';
+            this.countingBeadsDiv.appendChild(sep);
+
+            this.countingBeadsDiv.appendChild(this.createBeadGroup(num2, 'bead-secondary'));
+        } else {
+            // Subtraction: bright beads = answer (first num1-num2), grey beads = removed (last num2)
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bead-group-wrapper';
+
+            const group = document.createElement('div');
+            group.className = 'bead-group';
+
+            for (let i = 0; i < num1; i++) {
+                const bead = document.createElement('div');
+                bead.className = `bead ${i < num1 - num2 ? 'bead-primary' : 'bead-subtract'}`;
+                bead.style.animationDelay = `${i * BEAD_ANIMATION_DELAY_MS}ms`;
+                group.appendChild(bead);
+            }
+
+            const countLabel = document.createElement('div');
+            countLabel.className = 'bead-count';
+            countLabel.textContent = num1;
+
+            wrapper.appendChild(group);
+            wrapper.appendChild(countLabel);
+            this.countingBeadsDiv.appendChild(wrapper);
+        }
+    }
+
+    // Build a bead group wrapper with colored beads and a count label
+    createBeadGroup(count, colorClass) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'bead-group-wrapper';
+
+        const group = document.createElement('div');
+        group.className = 'bead-group';
+
+        for (let i = 0; i < count; i++) {
+            const bead = document.createElement('div');
+            bead.className = `bead ${colorClass}`;
+            bead.style.animationDelay = `${i * BEAD_ANIMATION_DELAY_MS}ms`;
+            group.appendChild(bead);
+        }
+
+        const countLabel = document.createElement('div');
+        countLabel.className = 'bead-count';
+        countLabel.textContent = count;
+
+        wrapper.appendChild(group);
+        wrapper.appendChild(countLabel);
+        return wrapper;
+    }
+
+    // Set the active difficulty level
+    setDifficulty(level) {
+        this.selectedDifficulty = level;
+        this.consecutiveCorrect = 0;
+        this.saveSelectedDifficulty();
+        this.updateDifficultyDisplay();
+        if (!this.inChallengeMode) {
+            this.generateNewProblem();
+        }
+    }
+
+    // Update which difficulty button appears active
+    updateDifficultyDisplay() {
+        if (!this.difficultyButtons) return;
+        this.difficultyButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.level === this.selectedDifficulty);
+        });
+    }
+
+    // Persist the selected difficulty
+    saveSelectedDifficulty() {
+        localStorage.setItem('mathOrbDifficulty', this.selectedDifficulty);
+    }
+
+    // Load the persisted difficulty selection
+    loadSelectedDifficulty() {
+        const saved = localStorage.getItem('mathOrbDifficulty');
+        // Migrate legacy string values to numbered levels
+        if (saved === 'easy') return '1';
+        if (saved === 'medium') return '2';
+        if (saved === 'hard') return '3';
+        return saved;
+    }
+
+    // Auto-advance level after consecutive correct answers threshold
+    maybeAutoAdvanceLevel() {
+        if (this.consecutiveCorrect < LEVEL_UP_THRESHOLD) {
+            return false;
+        }
+        const next = NEXT_LEVEL[this.selectedDifficulty];
+        if (!next) {
+            this.consecutiveCorrect = 0;
+            return false;
+        }
+        this.selectedDifficulty = next;
+        this.consecutiveCorrect = 0;
+        this.saveSelectedDifficulty();
+        this.updateDifficultyDisplay();
+        return true;
+    }
+
+    // Set the active operation mode
+    setMode(mode) {
+        this.selectedMode = mode;
+        this.saveSelectedMode();
+        this.updateModeDisplay();
+        if (!this.inChallengeMode) {
+            this.generateNewProblem();
+        }
+    }
+
+    // Update which mode button appears active
+    updateModeDisplay() {
+        if (!this.modeButtons) return;
+        this.modeButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === this.selectedMode);
+        });
+    }
+
+    // Persist the selected mode
+    saveSelectedMode() {
+        localStorage.setItem('mathOrbMode', this.selectedMode);
+    }
+
+    // Load the persisted mode selection
+    loadSelectedMode() {
+        return localStorage.getItem('mathOrbMode');
     }
 }
 
