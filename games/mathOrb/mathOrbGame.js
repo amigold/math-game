@@ -9,8 +9,12 @@ const NEXT_LEVEL = { '1': '2', '2': '3' };
 // Maximum total beads to show in the supply tray
 const MAX_SUPPLY_BEADS = 20;
 
-// Colors for bead blocks
-const BEAD_COLORS = ['bead-red', 'bead-blue', 'bead-green', 'bead-yellow', 'bead-purple'];
+// Block types: value, CSS class, label
+const BLOCK_TYPES = [
+    { value: 10, cls: 'bead-ten', label: '10' },
+    { value: 5,  cls: 'bead-five', label: '5' },
+    { value: 1,  cls: 'bead-one', label: '1' },
+];
 
 class MathOrbGame {
     constructor() {
@@ -921,18 +925,26 @@ class MathOrbGame {
         this.beadDropzone.classList.remove('has-beads');
         this.dropzoneCount.textContent = '0';
 
-        // Populate supply tray with enough beads to solve the problem
-        // Give a generous supply: max of the two operands + answer (capped)
-        const supplyCount = Math.min(problem.num1 + problem.num2, MAX_SUPPLY_BEADS);
-        const supplyContainer = this.beadSupply;
-        // Keep the label, remove old beads
-        supplyContainer.querySelectorAll('.bead-block').forEach(b => b.remove());
+        // Clear old supply blocks
+        this.beadSupply.querySelectorAll('.bead-block').forEach(b => b.remove());
 
-        for (let i = 0; i < supplyCount; i++) {
-            const block = document.createElement('div');
-            block.className = `bead-block ${BEAD_COLORS[i % BEAD_COLORS.length]}`;
-            block.setAttribute('draggable', 'false'); // we handle drag manually
-            supplyContainer.appendChild(block);
+        // Provide a generous supply of each block type
+        // Enough 10s, 5s, and 1s to construct any answer up to the max
+        const maxVal = Math.max(problem.num1, problem.num2, problem.answer);
+        const supply = [
+            { ...BLOCK_TYPES[0], count: Math.floor(maxVal / 10) + 1 },  // 10-blocks
+            { ...BLOCK_TYPES[1], count: Math.floor(maxVal / 5) + 1 },   // 5-blocks
+            { ...BLOCK_TYPES[2], count: Math.min(maxVal, 10) },          // 1-blocks
+        ];
+
+        for (const { cls, label, count } of supply) {
+            for (let i = 0; i < count; i++) {
+                const block = document.createElement('div');
+                block.className = `bead-block ${cls}`;
+                block.textContent = label;
+                block.dataset.value = label;
+                this.beadSupply.appendChild(block);
+            }
         }
 
         this.beadWorkspace.classList.remove('hidden');
@@ -1053,9 +1065,12 @@ class MathOrbGame {
     }
 
     updateDropzoneCount() {
-        const count = this.beadDropzone.querySelectorAll('.bead-block').length;
-        this.dropzoneCount.textContent = count;
-        this.beadDropzone.classList.toggle('has-beads', count > 0);
+        let total = 0;
+        this.beadDropzone.querySelectorAll('.bead-block').forEach(b => {
+            total += parseInt(b.dataset.value) || 0;
+        });
+        this.dropzoneCount.textContent = total;
+        this.beadDropzone.classList.toggle('has-beads', total > 0);
     }
 
     // Set the active difficulty level
