@@ -675,53 +675,50 @@
 /* Bead Workspace - draggable manipulatives */
 .bead-workspace {
     display: flex;
-    gap: 16px;
+    flex-direction: column;
+    gap: 12px;
     margin-bottom: 20px;
     width: 100%;
-    max-width: 460px;
-    min-height: 120px;
+    max-width: 420px;
 }
 
 .bead-workspace.hidden {
     display: none;
 }
 
-/* Supply tray on the left */
+/* Supply tray on top */
 .bead-supply {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 12px 10px;
-    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecf4 100%);
-    border-radius: 16px;
-    border: 2px dashed #b0bec5;
-    min-width: 80px;
     flex-wrap: wrap;
-    align-content: flex-start;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecf4 100%);
+    border-radius: 14px;
+    border: 2px dashed #b0bec5;
 }
 
 .supply-label {
     font-size: 13px;
     font-weight: bold;
     color: #667eea;
-    text-align: center;
     width: 100%;
-    margin-bottom: 4px;
+    text-align: center;
+    margin-bottom: 2px;
 }
 
-/* Drop zone on the right */
+/* Drop zone below */
 .bead-dropzone {
-    flex: 1;
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
     gap: 6px;
-    padding: 12px;
+    padding: 14px;
     background: rgba(255, 255, 255, 0.9);
-    border-radius: 16px;
+    border-radius: 14px;
     border: 3px dashed #c8e6c9;
-    min-height: 100px;
+    min-height: 60px;
     position: relative;
     transition: border-color 0.2s, background 0.2s;
 }
@@ -748,9 +745,9 @@
 
 .dropzone-count {
     position: absolute;
-    bottom: 6px;
+    bottom: 4px;
     right: 10px;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
     color: #667eea;
     pointer-events: none;
@@ -758,8 +755,8 @@
 
 /* Draggable bead block (rectangle) */
 .bead-block {
-    width: 44px;
-    height: 28px;
+    width: 40px;
+    height: 26px;
     border-radius: 6px;
     cursor: grab;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
@@ -801,12 +798,6 @@
 
 .bead-block.bead-purple {
     background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-}
-
-/* Bead placed in drop zone - slightly smaller to fit more */
-.bead-dropzone .bead-block {
-    width: 38px;
-    height: 24px;
 }
 
 @keyframes bead-land {
